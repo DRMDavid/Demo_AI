@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57d4120ce3ed518449d996da77d0b341, type: 3}
+  m_Name: Player_Iron
+  m_EditorClassIdentifier: 
+  Nivel: 1
+  Nombre: Iron
+  Icono: {fileID: -858007234, guid: 44ced3bb28be3974dac2f60f6cdbe78f, type: 3}
+  SaludActual: 8
+  SaludMax: 8
+  Armadura: 6
+  ArmaduraMax: 6
+  Energia: 150
+  EnergiaMax: 150
+  ChanceCritico: 20
+  "Da\xF1oCritico": 80
