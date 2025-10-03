@@ -42,7 +42,7 @@ public class BaseEnemy : MonoBehaviour
         PlayerSalud salud = player.GetComponent<PlayerSalud>();
         if (salud != null)
         {
-            salud.RecibirDaño(contactDamage);
+            salud.RecibirDamage(contactDamage);
         }
     }
 

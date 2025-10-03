@@ -31,7 +31,7 @@ public class HeavyEnemy : BaseEnemy
         Vector2 force = Pursuit(_playerTransform);
         _rb.AddForce(force);
         _rb.linearVelocity = Vector2.ClampMagnitude(_rb.linearVelocity, maxSpeed);
-        RotateTowardsPlayer();
+        //RotateTowardsPlayer();
     }
 
     private void DetectPlayer()
@@ -59,13 +59,13 @@ public class HeavyEnemy : BaseEnemy
         return Vector2.ClampMagnitude(steeringForce, maxForce);
     }
 
-    private void RotateTowardsPlayer()
-    {
-        if (_playerTransform == null) return;
-        Vector2 direction = (_playerTransform.position - transform.position).normalized;
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0f, 0f, angle - 90f);
-    }
+    // private void RotateTowardsPlayer()
+    // {
+    //     if (_playerTransform == null) return;
+    //     Vector2 direction = (_playerTransform.position - transform.position).normalized;
+    //     float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+    //     transform.rotation = Quaternion.Euler(0f, 0f, angle - 90f);
+    // }
 
     protected override void OnCollisionEnter2D(Collision2D collision)
     {

@@ -9,7 +9,7 @@ public class PlayerSalud : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.R))
         {
-            RecibirDaño(1f);
+            RecibirDamage(1f);
         }
 
         if (Input.GetKeyDown(KeyCode.P))
@@ -27,15 +27,15 @@ public class PlayerSalud : MonoBehaviour
         }
     }
 
-    public void RecibirDaño(float cantidad)
+    public void RecibirDamage(float cantidad)
     {
         if (configPlayer.Armadura > 0)
         {
-            float dañoRestante = cantidad - configPlayer.Armadura;
+            float DamageRestante = cantidad - configPlayer.Armadura;
             configPlayer.Armadura = Mathf.Max(configPlayer.Armadura - cantidad, 0f);
-            if (dañoRestante > 0)
+            if (DamageRestante > 0)
             {
-                configPlayer.SaludActual = Mathf.Max(configPlayer.SaludActual - dañoRestante, 0f);
+                configPlayer.SaludActual = Mathf.Max(configPlayer.SaludActual - DamageRestante, 0f);
             }
         }
         else

@@ -5,11 +5,11 @@ public class Bullet : MonoBehaviour
 {
     [Header("Config")]
     public float lifeTime = 10f;    // Tiempo antes de autodestruir la bala
-    public float damage = 10f;     // Daño que hará la bala
+    public float damage = 10f;     // Daï¿½o que harï¿½ la bala
 
     private void Start()
     {
-        // Destruye la bala después de lifeTime segundos
+        // Destruye la bala despuï¿½s de lifeTime segundos
         Destroy(gameObject, lifeTime);
     }
 
@@ -21,13 +21,13 @@ public class Bullet : MonoBehaviour
             PlayerSalud playerSalud = collision.GetComponent<PlayerSalud>();
             if (playerSalud != null)
             {
-                // Aplica daño al player
-                playerSalud.RecibirDaño(damage);
+                // Aplica daï¿½o al player
+                playerSalud.RecibirDamage(damage);
             }
 
             Destroy(gameObject); // Destruye la bala al impactar
         }
-        // Si choca con pared u otro obstáculo
+        // Si choca con pared u otro obstï¿½culo
         else if (collision.CompareTag("Wall"))
         {
             Destroy(gameObject);
