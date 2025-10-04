@@ -99,7 +99,7 @@ GameObject:
   - component: {fileID: 63590818158628066}
   - component: {fileID: 146396182421373975}
   - component: {fileID: 7926694136675639855}
-  - component: {fileID: 2425065974933601080}
+  - component: {fileID: 8752991740244009683}
   m_Layer: 6
   m_Name: Bullet
   m_TagString: Untagged
@@ -166,7 +166,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_FlipX: 0
@@ -235,13 +235,13 @@ CircleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.31
---- !u!114 &2425065974933601080
+--- !u!114 &8752991740244009683
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -250,8 +250,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 7988684601154845558}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d66fb07e6ba515f479397b9be9c9d0ed, type: 3}
+  m_Script: {fileID: 11500000, guid: 24121403e869e7f42976290f46dc3778, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lifeTime: 2
-  damage: 10
+  lifeTime: 3
+  damage: 1
