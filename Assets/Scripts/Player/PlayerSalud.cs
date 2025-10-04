@@ -5,6 +5,12 @@ public class PlayerSalud : MonoBehaviour
     [Header("Config")]
     [SerializeField] private ConfiguracionPlayer configPlayer;
 
+    private void Awake()
+    {
+        // Reinicia la vida actual del jugador a su máximo al empezar el juego.
+        configPlayer.SaludActual = configPlayer.SaludMax;
+    }
+
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.R))

@@ -2157,6 +2157,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 7
       objectReference: {fileID: 0}
+    - target: {fileID: 1283732312666588918, guid: e86fb2a53e504af49a727832aea09ff9, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     - target: {fileID: 1452927214753157183, guid: e86fb2a53e504af49a727832aea09ff9, type: 3}
       propertyPath: m_BodyType
       value: 0
@@ -2237,13 +2241,23 @@ PrefabInstance:
       propertyPath: m_FlipY
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4902476109246543271, guid: e86fb2a53e504af49a727832aea09ff9, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 1283732312666588918, guid: e86fb2a53e504af49a727832aea09ff9, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1552641679}
+    - targetCorrespondingSourceObject: {fileID: 1283732312666588918, guid: e86fb2a53e504af49a727832aea09ff9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1552641682}
+    - targetCorrespondingSourceObject: {fileID: 1283732312666588918, guid: e86fb2a53e504af49a727832aea09ff9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1552641681}
+    - targetCorrespondingSourceObject: {fileID: 1283732312666588918, guid: e86fb2a53e504af49a727832aea09ff9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1552641680}
   m_SourcePrefab: {fileID: 100100000, guid: e86fb2a53e504af49a727832aea09ff9, type: 3}
 --- !u!1 &1330874128
 GameObject:
@@ -2484,7 +2498,7 @@ Animator:
   m_GameObject: {fileID: 1552641672}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 9e46e80811cffe64d91dcfd883d6d47e, type: 2}
+  m_Controller: {fileID: 9100000, guid: 8ef4ab0ad16817c40be291bc14e3bd1c, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -2496,6 +2510,68 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1552641680
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1552641672}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef43a32e8fc244c8b6b6d3c38e11e8f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHP: 25
+  currentHP: 25
+  damageToPlayer: 1
+  hpToFlee: -1
+  radiusBeforeStopMovingDuringFlee: 10
+  damageFlashDuration: 0.1
+  damageFlashColor: {r: 1, g: 0, b: 0, a: 1}
+  invulnerabilityTime: 0.2
+--- !u!114 &1552641681
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1552641672}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd7818063c4b8f543b02663cb8734aa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentBehavior: 1
+  maxSpeed: 10
+  maxForce: 5
+  arriveBrakeRadius: 5
+  arriveToleranceRadius: 0.5
+  arriveSpeedTolerance: 0.5
+  useObstacleAvoidance: 1
+  obstacleAvoidanceDetectionRadius: 1.28
+  obstacleAvoidanceLayerMask:
+    serializedVersion: 2
+    m_Bits: 512
+  _targetPosition: {x: 0, y: 0}
+  _targetRb: {fileID: 0}
+--- !u!114 &1552641682
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1552641672}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9ffd83e2ac6e8a4493be14d8ec656cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  radioDeDeteccion: 12
+  anguloDeVision: 360
+  desiredDetectionLayers:
+    serializedVersion: 2
+    m_Bits: 8
 --- !u!1 &1648418765
 GameObject:
   m_ObjectHideFlags: 0
@@ -2736,7 +2812,8 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 3792849572208221391, guid: d4022cfdb953d504d96863733be3b922, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -2813,7 +2890,8 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: -0.83
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 1874331836458682367, guid: 17d3b8707f4ec6445b5b5bc2515416a0, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
