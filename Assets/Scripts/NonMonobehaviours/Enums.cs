@@ -29,7 +29,7 @@ public enum ELayer
 // contener todas las cosas que vas a enumerar.
 public enum EInt : int
 {
-     // cada variable del tipo "EInt" pesa lo mismo que un entero (4 bytes).
+    // cada variable del tipo "EInt" pesa lo mismo que un entero (4 bytes).
 }
 
 public enum EShort : short

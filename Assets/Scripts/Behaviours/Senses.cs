@@ -12,7 +12,7 @@ public class Senses : MonoBehaviour
     public float radioDeDeteccion = 20.0f;
 
     [Tooltip("El ángulo del cono de visión en grados.")]
-    [Range(0, 360)] // <-- ¡AQUÍ ESTÁ EL SLIDER!
+    [Range(0, 360)]
     public float anguloDeVision = 120f;
 
     [Tooltip("Las capas (Layers) en las que se buscarán objetivos.")]
@@ -31,19 +31,17 @@ public class Senses : MonoBehaviour
     {
         _foundGameObjects.Clear();
         _isPlayerDetected = false;
-
-        // 1. Buscamos todos los colliders en el radio que estén en las capas deseadas.
+        
         Collider2D[] collidersInRadius = Physics2D.OverlapCircleAll(transform.position, radioDeDeteccion, desiredDetectionLayers);
 
-        // 2. Para cada collider, revisamos si está dentro del cono de visión.
         foreach (var col in collidersInRadius)
         {
             if (col.gameObject == this.gameObject) continue;
 
-            Vector2 directionToTarget = (col.transform.position - transform.position).normalized;
-
-            // Asume que tu sprite "mira" hacia ARRIBA. Si mira a la DERECHA, cambia 'transform.up' por 'transform.right'.
-            if (Vector2.Angle(transform.up, directionToTarget) < anguloDeVision / 2)
+            Vector2 directionToTarget = ((Vector2)col.transform.position - (Vector2)transform.position).normalized;
+            
+            // Usamos (Vector2)transform.up para asegurarnos de que la comparación es 2D
+            if (Vector2.Angle((Vector2)transform.up, directionToTarget) < anguloDeVision / 2)
             {
                 _foundGameObjects.Add(col.gameObject);
                 
@@ -54,34 +52,60 @@ public class Senses : MonoBehaviour
             }
         }
     }
-
+    
     public List<GameObject> GetAllObjectsByLayer(int layer)
     {
         return _foundGameObjects.Where(obj => obj != null && obj.layer == layer).ToList();
     }
+    
+    public List<GameObject> GetPlayers()
+    {
+        return GetAllObjectsByLayer(LayerMask.NameToLayer("Player"));
+    }
+    
+    public List<GameObject> GetEnemies()
+    {
+        return GetAllObjectsByLayer(LayerMask.NameToLayer("Enemy"));
+    }
+    
+    public List<GameObject> GetEnemyBullets()
+    {
+        return GetAllObjectsByLayer(LayerMask.NameToLayer("EnemyBullet"));
+    }
 
+    // --- MÉTODO MODIFICADO ---
     private void OnDrawGizmosSelected()
     {
-        // Si el jugador está detectado, el gizmo es VERDE. Si no, es ROJO.
+        // --- Lógica de Dibujo con Vector2 ---
+        
+        // 1. Definimos nuestros puntos y direcciones usando Vector2
+        Vector2 center = transform.position; // Unity convierte V3 a V2 automáticamente
+        Vector2 forwardDirection = transform.up; // También lo convierte
+
+        // 2. Calculamos los vectores del cono. La rotación es más fácil con Quaternions, 
+        // pero el resultado lo convertimos de vuelta a Vector2.
+        float halfAngle = anguloDeVision / 2;
+        Vector2 line1 = (Quaternion.Euler(0, 0, halfAngle) * forwardDirection).normalized * radioDeDeteccion;
+        Vector2 line2 = (Quaternion.Euler(0, 0, -halfAngle) * forwardDirection).normalized * radioDeDeteccion;
+
+        // --- Dibujo Final (La parte inevitable) ---
+        
         Gizmos.color = _isPlayerDetected ? Color.green : Color.red;
 
-        // Asume que el sprite mira hacia ARRIBA. Cambia 'transform.up' si mira a la DERECHA.
-        Vector3 forwardDirection = transform.up; 
-        Vector3 coneLine1 = Quaternion.AngleAxis(anguloDeVision / 2, Vector3.forward) * forwardDirection * radioDeDeteccion;
-        Vector3 coneLine2 = Quaternion.AngleAxis(-anguloDeVision / 2, Vector3.forward) * forwardDirection * radioDeDeteccion;
-
-        // Dibuja las líneas del cono.
-        Gizmos.DrawLine(transform.position, transform.position + coneLine1);
-        Gizmos.DrawLine(transform.position, transform.position + coneLine2);
+        // 3. Al llamar a Gizmos.DrawLine, Unity convierte nuestros Vector2 (center, line1, etc.)
+        // a Vector3 de forma automática y silenciosa.
+        Gizmos.DrawLine(center, center + line1);
+        Gizmos.DrawLine(center, center + line2);
         
-        // Si se detecta al jugador, dibuja una línea verde directa hacia él.
         if (_isPlayerDetected)
         {
              foreach (var obj in _foundGameObjects)
              {
                  if(obj != null && obj.CompareTag("Player"))
                  {
-                     Gizmos.DrawLine(transform.position, obj.transform.position);
+                     // Aquí también, Unity convierte la posición del objeto (V3) y el centro (V2)
+                     // para que la función los acepte.
+                     Gizmos.DrawLine(center, obj.transform.position);
                  }
              }
         }

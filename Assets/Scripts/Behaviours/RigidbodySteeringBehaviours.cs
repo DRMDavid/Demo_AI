@@ -41,7 +41,7 @@ public class RigidbodySteeringBehaviours : MonoBehaviour
 
     public Vector2 Seek(Vector2 targetPosition)
     {
-        Vector2 puntaMenosCola = Utilities.PuntaMenosCola(targetPosition, transform.position);
+        Vector2 puntaMenosCola = targetPosition - (Vector2)transform.position;
         Vector2 desiredDirection = puntaMenosCola.normalized;
         Vector2 desiredVelocity = desiredDirection * maxSpeed;
         return desiredVelocity - _rb.linearVelocity;
@@ -95,11 +95,13 @@ public class RigidbodySteeringBehaviours : MonoBehaviour
         Vector2 steeringForce = Vector2.zero;
         if (useObstacleAvoidance)
         {
-            var obstacles = Utilities.GetObjectsInRadius(transform.position, obstacleAvoidanceDetectionRadius, obstacleAvoidanceLayerMask);
+            // Note: For 2D, you should use Physics2D.OverlapCircleAll
+            Collider2D[] obstacles = Physics2D.OverlapCircleAll(transform.position, obstacleAvoidanceDetectionRadius, obstacleAvoidanceLayerMask);
             foreach (var obstacle in obstacles)
             {
-                if (obstacle == null) continue;
+                if (obstacle == null || obstacle.attachedRigidbody == _rb) continue;
                 float distanceToObstacle = ((Vector2)transform.position - (Vector2)obstacle.transform.position).magnitude;
+                // Using (1 - ratio) to make the force stronger when closer
                 steeringForce += Flee(obstacle.transform.position) * (1 - (distanceToObstacle / obstacleAvoidanceDetectionRadius));
             }
         }
@@ -133,6 +135,68 @@ public class RigidbodySteeringBehaviours : MonoBehaviour
         if (_rb.linearVelocity.magnitude > maxSpeed)
         {
             _rb.linearVelocity = _rb.linearVelocity.normalized * maxSpeed;
+        }
+    }
+    
+    // --- METHOD ADDED ---
+    protected void OnDrawGizmos()
+    {
+        if (!Application.isPlaying || !_targetIsSet)
+            return;
+        
+        // Draw target position
+        Gizmos.color = Color.red;
+        Gizmos.DrawCube(_targetPosition, Vector2.one * 0.5f);
+
+        Vector2 displayTargetPosition = _targetPosition;
+        Vector2 steeringForce = Vector2.zero;
+        
+        switch (currentBehavior)
+        {
+            case ESteeringBehaviors.Pursuit:
+            case ESteeringBehaviors.Evade:
+                if (_targetRb != null)
+                {
+                    Vector2 predictedPosition = PredictPosition(_targetPosition, _targetRb.linearVelocity);
+                    Gizmos.color = Color.yellow;
+                    Gizmos.DrawCube(predictedPosition, Vector2.one * 0.5f);
+                    displayTargetPosition = predictedPosition;
+                }
+                break;
+        }
+
+        // Line from agent to the target (or predicted position)
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(transform.position, displayTargetPosition);
+        
+        // Line for desired velocity (maxSpeed in target direction)
+        Vector2 directionToPosition = (displayTargetPosition - (Vector2)transform.position).normalized;
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(transform.position, (Vector2)transform.position + directionToPosition * maxSpeed);
+        
+        // Line for current velocity
+        Gizmos.color = Color.blue; // Changed to blue to distinguish from red target
+        Gizmos.DrawLine(transform.position, (Vector2)transform.position + _rb.linearVelocity);
+        
+        // Line for the final steering force
+        // We recalculate it here just for visualization purposes
+        switch (currentBehavior)
+        {
+            case ESteeringBehaviors.Seek: steeringForce = Seek(_targetPosition); break;
+            case ESteeringBehaviors.Flee: steeringForce = Flee(_targetPosition); break;
+            case ESteeringBehaviors.Pursuit: steeringForce = Pursuit(_targetPosition); break;
+            case ESteeringBehaviors.Evade: steeringForce = Evade(_targetPosition); break;
+            case ESteeringBehaviors.Arrive: steeringForce = Arrive(_targetPosition); break;
+        }
+        steeringForce += ObstacleAvoidance();
+        steeringForce = Vector2.ClampMagnitude(steeringForce, maxForce);
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawLine(transform.position, (Vector2)transform.position + steeringForce);
+
+        if (useObstacleAvoidance)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(transform.position, obstacleAvoidanceDetectionRadius);
         }
     }
 }
