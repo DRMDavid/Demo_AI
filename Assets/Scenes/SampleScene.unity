@@ -2218,6 +2218,14 @@ PrefabInstance:
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 4902476109246543271, guid: e86fb2a53e504af49a727832aea09ff9, type: 3}
+      propertyPath: moveSpeed
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 4902476109246543271, guid: e86fb2a53e504af49a727832aea09ff9, type: 3}
+      propertyPath: playerEnRango
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4902476109246543271, guid: e86fb2a53e504af49a727832aea09ff9, type: 3}
       propertyPath: detectionRadius
       value: 5
       objectReference: {fileID: 0}

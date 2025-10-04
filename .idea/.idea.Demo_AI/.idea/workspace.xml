@@ -13,6 +13,10 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Behaviours/PursuitWithVision.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Behaviours/VisionCone.cs" root0="FORCE_HIGHLIGHTING" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 0
@@ -108,7 +112,7 @@
       <workItem from="1759445705705" duration="1038000" />
       <workItem from="1759447441282" duration="93000" />
       <workItem from="1759447564701" duration="920000" />
-      <workItem from="1759533424866" duration="642000" />
+      <workItem from="1759533424866" duration="3856000" />
     </task>
     <servers />
   </component>

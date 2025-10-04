@@ -212,11 +212,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ad3ade84936f514681bd83e33f4565f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
-  contactDamage: 10
-  damageFlashDuration: 0.15
-  damageColor: {r: 1, g: 0, b: 0, a: 1}
+  maxHealth: 25
+  currentHealth: 25
+  playerEnRango: 1
+  moveSpeed: 4
   maxSpeed: 4
-  maxForce: 1.5
-  knockbackMultiplier: 0.5
-  detectionRadius: 10
