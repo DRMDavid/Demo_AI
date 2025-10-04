@@ -2162,6 +2162,10 @@ PrefabInstance:
       value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 1283732312666588918, guid: e86fb2a53e504af49a727832aea09ff9, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1283732312666588918, guid: e86fb2a53e504af49a727832aea09ff9, type: 3}
       propertyPath: m_TagString
       value: Enemy
       objectReference: {fileID: 0}
@@ -2487,6 +2491,76 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1528819952
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1528819941}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9ffd83e2ac6e8a4493be14d8ec656cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  radioDeDeteccion: 20
+  anguloDeVision: 360
+  desiredDetectionLayers:
+    serializedVersion: 2
+    m_Bits: 8
+--- !u!114 &1528819953
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1528819941}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd7818063c4b8f543b02663cb8734aa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentBehavior: 1
+  maxSpeed: 10
+  maxForce: 5
+  arriveBrakeRadius: 5
+  arriveToleranceRadius: 0.5
+  arriveSpeedTolerance: 0.5
+  useObstacleAvoidance: 1
+  obstacleAvoidanceDetectionRadius: 5
+  obstacleAvoidanceLayerMask:
+    serializedVersion: 2
+    m_Bits: 768
+  _targetPosition: {x: 0, y: 0}
+  _targetRb: {fileID: 0}
+--- !u!114 &1528819954
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1528819941}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6985212809b7c346864688439c919f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHP: 10
+  currentHP: 10
+  damageToPlayer: 1
+  hpToFlee: 10
+  radiusBeforeStopMovingDuringFlee: 2
+  damageFlashDuration: 0.1
+  damageFlashColor: {r: 1, g: 0, b: 0, a: 1}
+  invulnerabilityTime: 0.2
+  acceleration: 5
+  maxSpeed: 3
+  fleeDuration: 2
+  restDuration: 1
+  shootingCooldown: 3
+  predictionTime: 1
+  bulletPrefab: {fileID: 7988684601154845558, guid: 30159c3279c7ac44999c3cecc5d263ea, type: 3}
+  bulletSpeed: 4
 --- !u!1 &1552641672 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1283732312666588918, guid: e86fb2a53e504af49a727832aea09ff9, type: 3}
@@ -2842,6 +2916,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 7
       objectReference: {fileID: 0}
+    - target: {fileID: 1452927214753157183, guid: 17d3b8707f4ec6445b5b5bc2515416a0, type: 3}
+      propertyPath: m_Constraints
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 1874331836458682367, guid: 17d3b8707f4ec6445b5b5bc2515416a0, type: 3}
       propertyPath: firePoint
       value: 
@@ -2906,6 +2984,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1283732312666588918, guid: 17d3b8707f4ec6445b5b5bc2515416a0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1528819947}
+    - targetCorrespondingSourceObject: {fileID: 1283732312666588918, guid: 17d3b8707f4ec6445b5b5bc2515416a0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1528819954}
+    - targetCorrespondingSourceObject: {fileID: 1283732312666588918, guid: 17d3b8707f4ec6445b5b5bc2515416a0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1528819953}
+    - targetCorrespondingSourceObject: {fileID: 1283732312666588918, guid: 17d3b8707f4ec6445b5b5bc2515416a0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1528819952}
   m_SourcePrefab: {fileID: 100100000, guid: 17d3b8707f4ec6445b5b5bc2515416a0, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
