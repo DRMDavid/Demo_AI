@@ -5,8 +5,8 @@ using System.Linq;
 
 public class BaseEnemy : MonoBehaviour
 {
-    private Senses _senses;
-    private RigidbodySteeringBehaviours _steeringBehaviors;
+    protected Senses _senses;
+    protected RigidbodySteeringBehaviours _steeringBehaviors;
 
     [Header("Estadísticas de Combate")]
     public int maxHP = 100;
@@ -29,7 +29,7 @@ public class BaseEnemy : MonoBehaviour
     private bool _canDamagePlayer = true;
     private float _damageCooldown = 1.0f;
 
-    void Start()
+    protected virtual void Start()
     {
         currentHP = maxHP;
         _senses = GetComponent<Senses>();

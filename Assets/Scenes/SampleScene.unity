@@ -1333,7 +1333,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2685679409140820855, guid: d1080c2782ae3e14cbc6c0f3b3c4c104, type: 3}
       propertyPath: velocidadDash
-      value: 15
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2685679409140820855, guid: d1080c2782ae3e14cbc6c0f3b3c4c104, type: 3}
+      propertyPath: velocidadMovimiento
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6272720520837006056, guid: d1080c2782ae3e14cbc6c0f3b3c4c104, type: 3}
       propertyPath: m_SortingLayer
@@ -2251,13 +2255,13 @@ PrefabInstance:
       addedObject: {fileID: 1552641679}
     - targetCorrespondingSourceObject: {fileID: 1283732312666588918, guid: e86fb2a53e504af49a727832aea09ff9, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1552641682}
+      addedObject: {fileID: 1552641688}
     - targetCorrespondingSourceObject: {fileID: 1283732312666588918, guid: e86fb2a53e504af49a727832aea09ff9, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1552641681}
+      addedObject: {fileID: 1552641690}
     - targetCorrespondingSourceObject: {fileID: 1283732312666588918, guid: e86fb2a53e504af49a727832aea09ff9, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1552641680}
+      addedObject: {fileID: 1552641689}
   m_SourcePrefab: {fileID: 100100000, guid: e86fb2a53e504af49a727832aea09ff9, type: 3}
 --- !u!1 &1330874128
 GameObject:
@@ -2510,7 +2514,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &1552641680
+--- !u!114 &1552641688
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2519,18 +2523,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 1552641672}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ef43a32e8fc244c8b6b6d3c38e11e8f9, type: 3}
+  m_Script: {fileID: 11500000, guid: d1333365de0ceda4bac3fd2da5cd2354, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   maxHP: 25
   currentHP: 25
-  damageToPlayer: 1
+  damageToPlayer: 2
   hpToFlee: -1
   radiusBeforeStopMovingDuringFlee: 10
   damageFlashDuration: 0.1
   damageFlashColor: {r: 1, g: 0, b: 0, a: 1}
   invulnerabilityTime: 0.2
---- !u!114 &1552641681
+  acceleration: 0.5
+  maxSpeed: 4
+  pursuitRange: 50
+  wallCollisionResetSpeed: 1
+--- !u!114 &1552641689
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2543,8 +2551,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentBehavior: 1
-  maxSpeed: 10
-  maxForce: 5
+  maxSpeed: 4
+  maxForce: 3
   arriveBrakeRadius: 5
   arriveToleranceRadius: 0.5
   arriveSpeedTolerance: 0.5
@@ -2555,7 +2563,7 @@ MonoBehaviour:
     m_Bits: 512
   _targetPosition: {x: 0, y: 0}
   _targetRb: {fileID: 0}
---- !u!114 &1552641682
+--- !u!114 &1552641690
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
