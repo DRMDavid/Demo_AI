@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6929006371254993571}
   - component: {fileID: 4976246159557211720}
   - component: {fileID: 7599064998164028749}
+  - component: {fileID: 630273586264685259}
   m_Layer: 9
   m_Name: Caja_3
   m_TagString: Caja
@@ -75,7 +76,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 2077148575
-  m_SortingLayer: 4
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_Sprite: {fileID: -1645717026, guid: 17e623114ac9a994fac057d6d775135e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -134,3 +135,19 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.9, y: 0.9}
   m_EdgeRadius: 0
+--- !u!114 &630273586264685259
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7497371010489121076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29683576555fc1542b766c19c9504c27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  vida: 6
+  efectoDestruccion: {fileID: 0}
+  sonidoImpacto: {fileID: 0}
+  sonidoDestruccion: {fileID: 0}
