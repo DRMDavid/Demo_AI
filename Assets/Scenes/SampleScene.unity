@@ -1553,8 +1553,8 @@ MonoBehaviour:
   bulletPrefab: {fileID: 7988684601154845558, guid: 2fa4f1df0eea0154d8ef8bfb9ee89cd3, type: 3}
   firePoint: {fileID: 1840431598}
   proyectilDamage: 2
-  proyectilSpeed: 12
-  fireRate: 0.25
+  proyectilSpeed: 3
+  fireRate: 0.7
   armaSprite: {fileID: 1720014108}
 --- !u!1 &811078821
 GameObject:
@@ -1688,7 +1688,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 15/15
+  m_text: 20/20
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
