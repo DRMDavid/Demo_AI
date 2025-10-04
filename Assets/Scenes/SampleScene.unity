@@ -1333,11 +1333,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2685679409140820855, guid: d1080c2782ae3e14cbc6c0f3b3c4c104, type: 3}
       propertyPath: velocidadDash
-      value: 10
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 2685679409140820855, guid: d1080c2782ae3e14cbc6c0f3b3c4c104, type: 3}
       propertyPath: velocidadMovimiento
-      value: 5
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 6272720520837006056, guid: d1080c2782ae3e14cbc6c0f3b3c4c104, type: 3}
       propertyPath: m_SortingLayer
