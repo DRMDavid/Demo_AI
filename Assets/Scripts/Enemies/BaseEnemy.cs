@@ -25,7 +25,7 @@ public class BaseEnemy : MonoBehaviour
     private SpriteRenderer _spriteRenderer;
     private Color _originalColor;
     private bool _canTakeDamage = true;
-    
+
     private bool _canDamagePlayer = true;
     private float _damageCooldown = 1.0f;
 
@@ -34,8 +34,16 @@ public class BaseEnemy : MonoBehaviour
         currentHP = maxHP;
         _senses = GetComponent<Senses>();
         _steeringBehaviors = GetComponent<RigidbodySteeringBehaviours>();
+
+        // Buscar el SpriteRenderer en el objeto o en hijos (para TurretEnemy con VisionCone)
         _spriteRenderer = GetComponent<SpriteRenderer>();
-        if (_spriteRenderer != null) _originalColor = _spriteRenderer.color;
+        if (_spriteRenderer == null)
+            _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+
+        if (_spriteRenderer != null)
+            _originalColor = _spriteRenderer.color;
+        else
+            Debug.LogWarning($"{name} no tiene SpriteRenderer en este objeto ni en hijos.");
     }
 
     void Update()
@@ -44,10 +52,10 @@ public class BaseEnemy : MonoBehaviour
         {
             TakeDamage(1);
         }
-        
+
         List<GameObject> foundPlayers = _senses.GetAllObjectsByLayer(LayerMask.NameToLayer("Player"));
-        GameObject nearestPlayer = foundPlayers.Any() 
-            ? foundPlayers.OrderBy(p => Vector2.Distance(transform.position, p.transform.position)).FirstOrDefault() 
+        GameObject nearestPlayer = foundPlayers.Any()
+            ? foundPlayers.OrderBy(p => Vector2.Distance(transform.position, p.transform.position)).FirstOrDefault()
             : null;
 
         if (nearestPlayer != null)
@@ -56,7 +64,9 @@ public class BaseEnemy : MonoBehaviour
 
             if (currentHP <= hpToFlee)
             {
-                _steeringBehaviors.currentBehavior = distanceToPlayer < radiusBeforeStopMovingDuringFlee ? ESteeringBehaviors.Flee : ESteeringBehaviors.DontMove;
+                _steeringBehaviors.currentBehavior = distanceToPlayer < radiusBeforeStopMovingDuringFlee
+                    ? ESteeringBehaviors.Flee
+                    : ESteeringBehaviors.DontMove;
             }
             else
             {
@@ -74,10 +84,14 @@ public class BaseEnemy : MonoBehaviour
     public void TakeDamage(int damage)
     {
         if (!_canTakeDamage) return;
-        currentHP -= 1;
+
+        currentHP -= damage;
         StartCoroutine(InvulnerabilityCoroutine());
-        if (currentHP <= 0) Die();
-        else StartCoroutine(DamageFlash());
+
+        if (currentHP <= 0)
+            Die();
+        else
+            StartCoroutine(DamageFlash());
     }
 
     private IEnumerator DamageFlash()
@@ -99,12 +113,16 @@ public class BaseEnemy : MonoBehaviour
 
     private void Die()
     {
-        Destroy(gameObject);
+        if (_spriteRenderer != null)
+            _spriteRenderer.color = Color.gray; // feedback de muerte
+
+        Destroy(gameObject, 0.2f); // delay por si quieres poner animación/sonido
     }
 
     private void OnCollisionStay2D(Collision2D collision)
     {
         if (!_canDamagePlayer) return;
+
         if (collision.gameObject.CompareTag("Player"))
         {
             PlayerSalud saludDelPlayer = collision.gameObject.GetComponent<PlayerSalud>();

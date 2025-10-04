@@ -4,7 +4,7 @@ using System.Collections;
 public class TurretEnemy : BaseEnemy
 {
     [Header("Cono de visión")]
-    public Transform visionCone;           // hijo que rota (no debe contener el SpriteRenderer del cuerpo)
+    public Transform visionCone;           
     public float visionAngle = 45f;
     public float visionDistance = 5f;
     public float rotationStep = 45f;
@@ -12,7 +12,7 @@ public class TurretEnemy : BaseEnemy
 
     [Header("Disparo")]
     public GameObject bulletPrefab;
-    public Transform firePoint;            // hijo en la punta del cañón
+    public Transform firePoint;            
     public float bulletSpeed = 10f;
     public float fireRate = 1f;
 
@@ -28,7 +28,6 @@ public class TurretEnemy : BaseEnemy
 
     void OnValidate()
     {
-        // intento automático de referencia si nombras los hijos así
         if (visionCone == null)
         {
             Transform t = transform.Find("VisionCone");
@@ -45,13 +44,11 @@ public class TurretEnemy : BaseEnemy
     {
         base.Start();
 
-        // checks básicos y mensajes para debugging
         if (visionCone == null) visionCone = transform;
         if (bulletPrefab == null) Debug.LogWarning("TurretEnemy: bulletPrefab no asignado en " + name);
         if (firePoint == null) Debug.LogWarning("TurretEnemy: firePoint no asignado en " + name);
 
         rotationCoroutine = StartCoroutine(RotateVisionCone());
-        Debug.Log("TurretEnemy inicializado: " + name);
     }
 
     void Update()
@@ -69,8 +66,11 @@ public class TurretEnemy : BaseEnemy
 
         if (player == null) return;
 
+        // validación extra para evitar errores si el player fue destruido
+        if (player == null) return;
+
         Vector2 dirToPlayer = (player.position - transform.position).normalized;
-        float angle = Vector2.Angle(visionCone.right, dirToPlayer); // usa visionCone.right
+        float angle = Vector2.Angle(visionCone.right, dirToPlayer);
         float distance = Vector2.Distance(transform.position, player.position);
 
         if (angle < visionAngle * 0.5f && distance <= visionDistance)
@@ -81,7 +81,6 @@ public class TurretEnemy : BaseEnemy
                 rotating = false;
                 if (rotationCoroutine != null) StopCoroutine(rotationCoroutine);
                 fireCoroutine = StartCoroutine(FireAtPlayer());
-                Debug.Log(name + " - PLAYER DETECTED");
             }
             lastDetectionTime = Time.time;
         }
@@ -93,7 +92,6 @@ public class TurretEnemy : BaseEnemy
                 if (fireCoroutine != null) StopCoroutine(fireCoroutine);
                 rotating = true;
                 rotationCoroutine = StartCoroutine(RotateVisionCone());
-                Debug.Log(name + " - PLAYER LOST, resuming rotation");
             }
         }
     }
@@ -111,36 +109,33 @@ public class TurretEnemy : BaseEnemy
     {
         while (playerDetected)
         {
+            // 🛑 chequeo para evitar MissingReference
+            if (player == null) yield break;
+
             if (bulletPrefab != null && firePoint != null)
             {
                 Vector2 dir = (player.position - firePoint.position).normalized;
                 GameObject bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
 
-                // si el prefab tiene el script Bullet usamos Init, si no, intentamos Rigidbody2D.velocity
-                var bulletScript = bullet.GetComponent<Bullet>();
+                var bulletScript = bullet.GetComponent<Bullet>(); // ahora usa Proyectil
                 if (bulletScript != null)
                 {
+                    bulletScript.damage = damageToPlayer;
                     bulletScript.Init(dir, bulletSpeed);
                 }
                 else
                 {
                     Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
                     if (rb != null) rb.linearVelocity = dir * bulletSpeed;
-                    else Debug.LogWarning("Bullet prefab no tiene Rigidbody2D ni Bullet.cs!");
+                    else Debug.LogWarning("Bullet prefab no tiene Rigidbody2D ni Proyectil.cs!");
                 }
-
-                Debug.Log(name + " - Fired bullet towards: " + dir);
-            }
-            else
-            {
-                Debug.LogWarning("TurretEnemy: bulletPrefab o firePoint faltan.");
             }
 
             yield return new WaitForSeconds(1f / fireRate);
         }
     }
 
-  void OnDrawGizmosSelected()
+    void OnDrawGizmosSelected()
     {
         if (visionCone == null) visionCone = transform;
         Gizmos.color = Color.yellow;

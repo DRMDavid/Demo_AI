@@ -44,6 +44,7 @@ public class PlayerMovimiento : MonoBehaviour
     {
         CapturarInput();
         RotarPlayer();
+        MoverPlayer();
 
         if (puedeRegenerar)
         {
@@ -144,4 +145,5 @@ public class PlayerMovimiento : MonoBehaviour
         yield return new WaitForSeconds(2f);  // pausa
         puedeRegenerar = true;                // vuelve a regenerar
     }
+
 }

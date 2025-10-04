@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 803646879585164979}
   - component: {fileID: 5809506561442589507}
-  m_Layer: 6
+  m_Layer: 10
   m_Name: Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -99,9 +99,9 @@ GameObject:
   - component: {fileID: 63590818158628066}
   - component: {fileID: 146396182421373975}
   - component: {fileID: 7926694136675639855}
-  - component: {fileID: 8752991740244009683}
-  m_Layer: 6
-  m_Name: Bullet
+  - component: {fileID: 6591015935776696983}
+  m_Layer: 10
+  m_Name: PlayerBullet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -186,7 +186,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7988684601154845558}
-  m_BodyType: 0
+  m_BodyType: 1
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -241,7 +241,7 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.31
---- !u!114 &8752991740244009683
+--- !u!114 &6591015935776696983
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -250,8 +250,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7988684601154845558}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24121403e869e7f42976290f46dc3778, type: 3}
+  m_Script: {fileID: 11500000, guid: 92d715e17a534b6f8b26cf393498b8c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lifeTime: 3
-  damage: 2
+  lifeTime: 2

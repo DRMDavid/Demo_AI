@@ -9,15 +9,6 @@ public class PlayerEnergia : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            GastarEnergia(20f);
-        }
-
-        if (Input.GetKeyDown(KeyCode.J))
-        {
-            RecuperarEnergia(1f); 
-        }
     }
     
     public void GastarEnergia(float cantidad)

@@ -13,15 +13,7 @@ public class PlayerSalud : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            RecibirDamage(1f);
-        }
-
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            RecuperarSalud(1f);
-        }
+ 
     }
     
     public void RecuperarSalud(float cantidad)

@@ -15,10 +15,10 @@ MonoBehaviour:
   Nivel: 1
   Nombre: Ember
   Icono: {fileID: -23606359, guid: 44ced3bb28be3974dac2f60f6cdbe78f, type: 3}
-  SaludActual: 15
-  SaludMax: 15
-  Armadura: 10
-  ArmaduraMax: 10
+  SaludActual: 20
+  SaludMax: 20
+  Armadura: 15
+  ArmaduraMax: 15
   Energia: 30
   EnergiaMax: 30
   ChanceCritico: 20
