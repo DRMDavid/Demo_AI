@@ -140,7 +140,7 @@ public class TurretEnemy : BaseEnemy
         }
     }
 
-    void OnDrawGizmosSelected()
+  void OnDrawGizmosSelected()
     {
         if (visionCone == null) visionCone = transform;
         Gizmos.color = Color.yellow;

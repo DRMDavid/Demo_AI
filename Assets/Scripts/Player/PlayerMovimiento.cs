@@ -1,5 +1,4 @@
 using System.Collections;
-using Unity.XR.GoogleVr;
 using UnityEngine;
 
 public class PlayerMovimiento : MonoBehaviour
@@ -11,6 +10,11 @@ public class PlayerMovimiento : MonoBehaviour
     [SerializeField] private float velocidadDash;
     [SerializeField] private float tiempoDash;
     [SerializeField] private float transparencia;
+    [SerializeField] private float costoDash = 5f;   // ✅ costo fijo
+
+    [Header("Energía")]
+    [SerializeField] private ConfiguracionPlayer configPlayer;
+    [SerializeField] private float regeneracionPorSegundo = 0.5f; // ✅ regeneración lenta
 
     private Rigidbody2D rb2D;
     private PlayerAcciones acciones;
@@ -19,6 +23,9 @@ public class PlayerMovimiento : MonoBehaviour
     private bool usandoDash;
     private float velocidadActual;
     private Vector2 direccionMovimiento;
+
+    private bool puedeRegenerar = true;  // ✅ control regeneración
+    private Coroutine regenDelayCoroutine;
 
     private void Awake()
     {
@@ -37,6 +44,11 @@ public class PlayerMovimiento : MonoBehaviour
     {
         CapturarInput();
         RotarPlayer();
+
+        if (puedeRegenerar)
+        {
+            RegenerarEnergia();
+        }
     }
 
     private void FixedUpdate()
@@ -52,10 +64,18 @@ public class PlayerMovimiento : MonoBehaviour
 
     private void Dash()
     {
-        if (usandoDash)
+        if (usandoDash || configPlayer.Energia < costoDash)
         {
             return;
         }
+
+        // ✅ gastar energía
+        configPlayer.Energia -= costoDash;
+        if (configPlayer.Energia < 0) configPlayer.Energia = 0;
+
+        // ✅ pausa regeneración por 2 segundos
+        if (regenDelayCoroutine != null) StopCoroutine(regenDelayCoroutine);
+        regenDelayCoroutine = StartCoroutine(PausarRegeneracion());
 
         usandoDash = true;
         StartCoroutine(IEDash());
@@ -104,5 +124,24 @@ public class PlayerMovimiento : MonoBehaviour
     private void OnDisable()
     {
         acciones.Disable();
+    }
+
+    // ✅ regeneración automática
+    private void RegenerarEnergia()
+    {
+        if (configPlayer.Energia < configPlayer.EnergiaMax)
+        {
+            configPlayer.Energia += regeneracionPorSegundo * Time.deltaTime;
+            if (configPlayer.Energia > configPlayer.EnergiaMax)
+                configPlayer.Energia = configPlayer.EnergiaMax;
+        }
+    }
+
+    // ✅ pausa regeneración 2 segundos
+    private IEnumerator PausarRegeneracion()
+    {
+        puedeRegenerar = false;
+        yield return new WaitForSeconds(2f);  // pausa
+        puedeRegenerar = true;                // vuelve a regenerar
     }
 }

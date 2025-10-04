@@ -32,6 +32,12 @@ public class EnemigoPesado : BaseEnemy
     // --- UPDATE ---
     void Update()
     {
+        
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            TakeDamage(1);
+        }
+        
         if (_steeringBehaviors == null) return;
 
         // Buscar jugador si aún no está cacheado

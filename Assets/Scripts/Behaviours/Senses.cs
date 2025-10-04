@@ -74,40 +74,40 @@ public class Senses : MonoBehaviour
     }
 
     // --- MÉTODO MODIFICADO ---
-    private void OnDrawGizmosSelected()
-    {
-        // --- Lógica de Dibujo con Vector2 ---
-        
-        // 1. Definimos nuestros puntos y direcciones usando Vector2
-        Vector2 center = transform.position; // Unity convierte V3 a V2 automáticamente
-        Vector2 forwardDirection = transform.up; // También lo convierte
-
-        // 2. Calculamos los vectores del cono. La rotación es más fácil con Quaternions, 
-        // pero el resultado lo convertimos de vuelta a Vector2.
-        float halfAngle = anguloDeVision / 2;
-        Vector2 line1 = (Quaternion.Euler(0, 0, halfAngle) * forwardDirection).normalized * radioDeDeteccion;
-        Vector2 line2 = (Quaternion.Euler(0, 0, -halfAngle) * forwardDirection).normalized * radioDeDeteccion;
-
-        // --- Dibujo Final (La parte inevitable) ---
-        
-        Gizmos.color = _isPlayerDetected ? Color.green : Color.red;
-
-        // 3. Al llamar a Gizmos.DrawLine, Unity convierte nuestros Vector2 (center, line1, etc.)
-        // a Vector3 de forma automática y silenciosa.
-        Gizmos.DrawLine(center, center + line1);
-        Gizmos.DrawLine(center, center + line2);
-        
-        if (_isPlayerDetected)
-        {
-             foreach (var obj in _foundGameObjects)
-             {
-                 if(obj != null && obj.CompareTag("Player"))
-                 {
-                     // Aquí también, Unity convierte la posición del objeto (V3) y el centro (V2)
-                     // para que la función los acepte.
-                     Gizmos.DrawLine(center, obj.transform.position);
-                 }
-             }
-        }
-    }
+    // private void OnDrawGizmosSelected()
+    // {
+    //     // --- Lógica de Dibujo con Vector2 ---
+    //     
+    //     // 1. Definimos nuestros puntos y direcciones usando Vector2
+    //     Vector2 center = transform.position; // Unity convierte V3 a V2 automáticamente
+    //     Vector2 forwardDirection = transform.up; // También lo convierte
+    //
+    //     // 2. Calculamos los vectores del cono. La rotación es más fácil con Quaternions, 
+    //     // pero el resultado lo convertimos de vuelta a Vector2.
+    //     float halfAngle = anguloDeVision / 2;
+    //     Vector2 line1 = (Quaternion.Euler(0, 0, halfAngle) * forwardDirection).normalized * radioDeDeteccion;
+    //     Vector2 line2 = (Quaternion.Euler(0, 0, -halfAngle) * forwardDirection).normalized * radioDeDeteccion;
+    //
+    //     // --- Dibujo Final (La parte inevitable) ---
+    //     
+    //     Gizmos.color = _isPlayerDetected ? Color.green : Color.red;
+    //
+    //     // 3. Al llamar a Gizmos.DrawLine, Unity convierte nuestros Vector2 (center, line1, etc.)
+    //     // a Vector3 de forma automática y silenciosa.
+    //     Gizmos.DrawLine(center, center + line1);
+    //     Gizmos.DrawLine(center, center + line2);
+    //     
+    //     if (_isPlayerDetected)
+    //     {
+    //          foreach (var obj in _foundGameObjects)
+    //          {
+    //              if(obj != null && obj.CompareTag("Player"))
+    //              {
+    //                  // Aquí también, Unity convierte la posición del objeto (V3) y el centro (V2)
+    //                  // para que la función los acepte.
+    //                  Gizmos.DrawLine(center, obj.transform.position);
+    //              }
+    //          }
+    //     }
+    // }
 }

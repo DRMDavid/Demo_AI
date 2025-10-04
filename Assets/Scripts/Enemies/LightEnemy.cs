@@ -4,19 +4,23 @@ using System.Collections;
 public class LightEnemy : BaseEnemy
 {
     [Header("Light Enemy Settings")]
-    public float acceleration = 5f;        // Fast acceleration
-    public float maxSpeed = 3f;            // Lower max speed (feels light)
-    public float fleeDuration = 3f;        // How long it flees (X seconds)
-    public float restDuration = 2f;        // How long it rests (Y seconds)
-    public float shootingCooldown = 2f;    // Time between shots
-    public float predictionTime = 1f;      // How many seconds ahead to predict player’s position
-    public GameObject bulletPrefab;        // Bullet prefab
-    public float bulletSpeed = 6f;         // Speed of the bullet
+    public float acceleration = 5f;
+    public float maxSpeed = 3f;
+    public float fleeDuration = 3f;
+    public float restDuration = 2f;
+    public float shootingCooldown = 2f;
+    public float predictionTime = 1f;
+    public GameObject bulletPrefab;
+    public float bulletSpeed = 6f;
 
     private Rigidbody2D _rb;
     private GameObject _player;
     private bool isFleeing = false;
     private bool canShoot = true;
+
+    // 👇 para el parpadeo
+    private SpriteRenderer spriteRenderer;
+    private Coroutine blinkCoroutine;
 
     // --- START ---
     protected override void Start()
@@ -29,7 +33,11 @@ public class LightEnemy : BaseEnemy
         if (_steeringBehaviors == null)
             Debug.LogError("LightEnemy requires RigidbodySteeringBehaviours on the prefab.");
 
-        StartCoroutine(FleeCycle()); // start flee/rest cycle
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+            Debug.LogWarning("LightEnemy: No SpriteRenderer found, blink effect won’t work.");
+
+        StartCoroutine(FleeCycle());
     }
 
     // --- FLEE/REST CYCLE ---
@@ -39,6 +47,8 @@ public class LightEnemy : BaseEnemy
         {
             // Flee
             isFleeing = true;
+            if (blinkCoroutine != null) StopCoroutine(blinkCoroutine); // parar parpadeo si estaba
+            if (spriteRenderer != null) spriteRenderer.color = Color.white; // reset color
             yield return new WaitForSeconds(fleeDuration);
 
             // Rest
@@ -47,8 +57,30 @@ public class LightEnemy : BaseEnemy
             if (_steeringBehaviors != null)
                 _steeringBehaviors.currentBehavior = ESteeringBehaviors.DontMove;
 
+            // 👉 inicia el parpadeo azul durante el descanso
+            if (spriteRenderer != null)
+                blinkCoroutine = StartCoroutine(BlinkBlue(restDuration));
+
             yield return new WaitForSeconds(restDuration);
         }
+    }
+
+    // --- BLINK BLUE ---
+    private IEnumerator BlinkBlue(float duration)
+    {
+        float elapsed = 0f;
+        bool toggle = false;
+
+        while (elapsed < duration)
+        {
+            toggle = !toggle;
+            spriteRenderer.color = toggle ? Color.blue : Color.white;
+
+            yield return new WaitForSeconds(0.3f); // velocidad del parpadeo
+            elapsed += 0.3f;
+        }
+
+        spriteRenderer.color = Color.white; // reset color al terminar
     }
 
     // --- UPDATE ---
@@ -71,12 +103,8 @@ public class LightEnemy : BaseEnemy
 
         if (isFleeing)
         {
-            // (A) Flee from player
             _steeringBehaviors.currentBehavior = ESteeringBehaviors.Flee;
-
-            // (D) Obstacle avoidance only during flee
             _steeringBehaviors.useObstacleAvoidance = true;
-
             _steeringBehaviors.SetTarget(_player.transform.position, playerRb);
         }
         else
@@ -84,13 +112,11 @@ public class LightEnemy : BaseEnemy
             _steeringBehaviors.useObstacleAvoidance = false;
         }
 
-        // (B) Predictive shooting
         if (canShoot)
         {
             StartCoroutine(ShootAtPredictedPosition(playerRb));
         }
 
-        // (C) Light movement: fast acceleration, low max speed
         if (_rb != null)
         {
             _rb.linearVelocity = Vector2.ClampMagnitude(_rb.linearVelocity, maxSpeed);
@@ -109,13 +135,9 @@ public class LightEnemy : BaseEnemy
 
         if (bulletPrefab != null && playerRb != null)
         {
-            // Predict player’s future position
             Vector2 predictedPosition = (Vector2)_player.transform.position + playerRb.linearVelocity * predictionTime;
-
-            // Direction towards predicted position
             Vector2 direction = (predictedPosition - (Vector2)transform.position).normalized;
 
-            // Instantiate bullet
             GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
             Rigidbody2D bulletRb = bullet.GetComponent<Rigidbody2D>();
             if (bulletRb != null)
