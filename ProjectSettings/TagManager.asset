@@ -7,6 +7,7 @@ TagManager:
   - Wall
   - Enemy
   - Caja
+  - Bullet
   layers:
   - Default
   - TransparentFX
@@ -50,11 +51,14 @@ TagManager:
   - name: Pared
     uniqueID: 4123998035
     locked: 0
-  - name: Player
-    uniqueID: 1728766009
-    locked: 0
   - name: Prop
     uniqueID: 2077148575
+    locked: 0
+  - name: Enemy
+    uniqueID: 294076823
+    locked: 0
+  - name: Player
+    uniqueID: 1728766009
     locked: 0
   - name: UI
     uniqueID: 3738821411

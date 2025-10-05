@@ -13,7 +13,11 @@ GameObject:
   - component: {fileID: 1452927214753157183}
   - component: {fileID: 5335469818895936150}
   - component: {fileID: 6814382295444255869}
-  m_Layer: 0
+  - component: {fileID: 6285229646698058732}
+  - component: {fileID: 873464789580426342}
+  - component: {fileID: 3538271512242662541}
+  - component: {fileID: 7722863247507930539}
+  m_Layer: 7
   m_Name: HeavyEnemy
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -107,7 +111,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!212 &5335469818895936150
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -149,8 +153,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 1728766009
-  m_SortingLayer: 3
+  m_SortingLayerID: 294076823
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_Sprite: {fileID: -654428623, guid: 9f920c11741e7e94fba22627a9d95d8d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -199,3 +203,91 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.5
+--- !u!95 &6285229646698058732
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1283732312666588918}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 8ef4ab0ad16817c40be291bc14e3bd1c, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &873464789580426342
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1283732312666588918}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1333365de0ceda4bac3fd2da5cd2354, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHP: 25
+  currentHP: 25
+  damageToPlayer: 3
+  hpToFlee: -1
+  radiusBeforeStopMovingDuringFlee: 10
+  damageFlashDuration: 0.1
+  damageFlashColor: {r: 1, g: 0, b: 0, a: 1}
+  invulnerabilityTime: 0.2
+  acceleration: 0.5
+  maxSpeed: 4
+  pursuitRange: 50
+  wallCollisionResetSpeed: 1
+--- !u!114 &3538271512242662541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1283732312666588918}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9ffd83e2ac6e8a4493be14d8ec656cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  radioDeDeteccion: 12
+  anguloDeVision: 360
+  desiredDetectionLayers:
+    serializedVersion: 2
+    m_Bits: 8
+--- !u!114 &7722863247507930539
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1283732312666588918}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd7818063c4b8f543b02663cb8734aa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentBehavior: 0
+  maxSpeed: 4
+  maxForce: 3
+  arriveBrakeRadius: 5
+  arriveToleranceRadius: 0.5
+  arriveSpeedTolerance: 0.5
+  useObstacleAvoidance: 1
+  obstacleAvoidanceDetectionRadius: 1.28
+  obstacleAvoidanceLayerMask:
+    serializedVersion: 2
+    m_Bits: 512
+  _targetPosition: {x: 0, y: 0}
+  _targetRb: {fileID: 0}
