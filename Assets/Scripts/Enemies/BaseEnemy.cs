@@ -1,6 +1,6 @@
 /*******************************************************
  * NOMBRE DEL ARCHIVO: BaseEnemy.cs
- * AUTOR: [Tu nombre completo]
+ * AUTOR: Gael, Steve y David
  * BASADO EN: Clase Agent.cs del profesor de IA
  * DESCRIPCIÓN:
  * Script que maneja la lógica básica de enemigos en el juego:
@@ -20,7 +20,6 @@
  *  - Concepto del profesor de IA (Agent.cs)
  *  - Documentación de Unity sobre Rigidbody2D, Coroutine y SpriteRenderer
  * 
- * FECHA: [Agrega la fecha de entrega o creación]
  *******************************************************/
 
 using System.Collections;
