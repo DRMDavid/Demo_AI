@@ -1436,7 +1436,7 @@ MonoBehaviour:
   proyectilSpeed: 12
   fireRate: 0.25
   armaSprite: {fileID: 1720014108}
-  shootSound: {fileID: 8300000, guid: 8467d8a79ef4ad745aa09fd3e879cf6e, type: 3}
+  shootSound: {fileID: 8300000, guid: 91ea8c8724b68bb4ca78113ce4f9d7db, type: 3}
 --- !u!82 &774775240
 AudioSource:
   m_ObjectHideFlags: 0
@@ -2297,10 +2297,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee6d074244c0a6d4dbf2eeb669d4dd53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  takeDamageSound: {fileID: 8300000, guid: 899eb2163863ca74283421da4eb54e45, type: 3}
-  deathSound: {fileID: 8300000, guid: abec67cb2527dfe469689c1d94c7f432, type: 3}
-  attackSound: {fileID: 0}
-  audioSource: {fileID: 0}
 --- !u!1 &1146099334
 GameObject:
   m_ObjectHideFlags: 0
@@ -2799,10 +2795,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee6d074244c0a6d4dbf2eeb669d4dd53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  takeDamageSound: {fileID: 8300000, guid: 899eb2163863ca74283421da4eb54e45, type: 3}
-  deathSound: {fileID: 8300000, guid: abec67cb2527dfe469689c1d94c7f432, type: 3}
-  attackSound: {fileID: 0}
-  audioSource: {fileID: 0}
 --- !u!1 &1487154543
 GameObject:
   m_ObjectHideFlags: 0
@@ -3048,10 +3040,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee6d074244c0a6d4dbf2eeb669d4dd53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  takeDamageSound: {fileID: 8300000, guid: 899eb2163863ca74283421da4eb54e45, type: 3}
-  deathSound: {fileID: 8300000, guid: abec67cb2527dfe469689c1d94c7f432, type: 3}
-  attackSound: {fileID: 0}
-  audioSource: {fileID: 0}
 --- !u!82 &1936689546
 AudioSource:
   m_ObjectHideFlags: 0

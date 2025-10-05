@@ -50,5 +50,6 @@ public class PlayerSalud : MonoBehaviour
     private void PlayerDerrotado()
     {
         Destroy(gameObject);
+
     }
 }
