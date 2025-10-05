@@ -1,9 +1,17 @@
+/*
+Integrantes del equipo:
+- Hannin Abarca
+- David Sánchez
+- Gael Jiménez
+*/
+
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
 /// <summary>
 /// Gestiona la percepción del entorno (cono de visión) para un agente 2D.
+/// Adaptación del código del profesor a un entorno 2D.
 /// </summary>
 public class Senses : MonoBehaviour
 {
@@ -20,18 +28,23 @@ public class Senses : MonoBehaviour
 
     private List<GameObject> _foundGameObjects = new List<GameObject>();
     public List<GameObject> FoundGameObjects => _foundGameObjects;
+
     private bool _isPlayerDetected = false;
 
     void Update()
     {
-        DetectarObjetos();
+        DetectarObjetos(); // Detectamos todos los objetos dentro del radio y ángulo
     }
-    
+
+    /// <summary>
+    /// Detecta objetos en el cono de visión del agente
+    /// </summary>
     private void DetectarObjetos()
     {
         _foundGameObjects.Clear();
         _isPlayerDetected = false;
-        
+
+        // Obtenemos todos los colliders dentro del radio de detección filtrando por capas
         Collider2D[] collidersInRadius = Physics2D.OverlapCircleAll(transform.position, radioDeDeteccion, desiredDetectionLayers);
 
         foreach (var col in collidersInRadius)
@@ -39,12 +52,12 @@ public class Senses : MonoBehaviour
             if (col.gameObject == this.gameObject) continue;
 
             Vector2 directionToTarget = ((Vector2)col.transform.position - (Vector2)transform.position).normalized;
-            
-            // Usamos (Vector2)transform.up para asegurarnos de que la comparación es 2D
+
+            // Modificación: usamos transform.up como vector 2D para el cálculo del ángulo
             if (Vector2.Angle((Vector2)transform.up, directionToTarget) < anguloDeVision / 2)
             {
                 _foundGameObjects.Add(col.gameObject);
-                
+
                 if (col.CompareTag("Player"))
                 {
                     _isPlayerDetected = true;
@@ -52,62 +65,36 @@ public class Senses : MonoBehaviour
             }
         }
     }
-    
+
+    /// <summary>
+    /// Obtiene todos los objetos detectados en una layer específica
+    /// </summary>
     public List<GameObject> GetAllObjectsByLayer(int layer)
     {
         return _foundGameObjects.Where(obj => obj != null && obj.layer == layer).ToList();
     }
-    
+
     public List<GameObject> GetPlayers()
     {
         return GetAllObjectsByLayer(LayerMask.NameToLayer("Player"));
     }
-    
+
     public List<GameObject> GetEnemies()
     {
         return GetAllObjectsByLayer(LayerMask.NameToLayer("Enemy"));
     }
-    
+
     public List<GameObject> GetEnemyBullets()
     {
         return GetAllObjectsByLayer(LayerMask.NameToLayer("EnemyBullet"));
     }
 
-    // --- MÉTODO MODIFICADO ---
-    // private void OnDrawGizmosSelected()
-    // {
-    //     // --- Lógica de Dibujo con Vector2 ---
-    //     
-    //     // 1. Definimos nuestros puntos y direcciones usando Vector2
-    //     Vector2 center = transform.position; // Unity convierte V3 a V2 automáticamente
-    //     Vector2 forwardDirection = transform.up; // También lo convierte
-    //
-    //     // 2. Calculamos los vectores del cono. La rotación es más fácil con Quaternions, 
-    //     // pero el resultado lo convertimos de vuelta a Vector2.
-    //     float halfAngle = anguloDeVision / 2;
-    //     Vector2 line1 = (Quaternion.Euler(0, 0, halfAngle) * forwardDirection).normalized * radioDeDeteccion;
-    //     Vector2 line2 = (Quaternion.Euler(0, 0, -halfAngle) * forwardDirection).normalized * radioDeDeteccion;
-    //
-    //     // --- Dibujo Final (La parte inevitable) ---
-    //     
-    //     Gizmos.color = _isPlayerDetected ? Color.green : Color.red;
-    //
-    //     // 3. Al llamar a Gizmos.DrawLine, Unity convierte nuestros Vector2 (center, line1, etc.)
-    //     // a Vector3 de forma automática y silenciosa.
-    //     Gizmos.DrawLine(center, center + line1);
-    //     Gizmos.DrawLine(center, center + line2);
-    //     
-    //     if (_isPlayerDetected)
-    //     {
-    //          foreach (var obj in _foundGameObjects)
-    //          {
-    //              if(obj != null && obj.CompareTag("Player"))
-    //              {
-    //                  // Aquí también, Unity convierte la posición del objeto (V3) y el centro (V2)
-    //                  // para que la función los acepte.
-    //                  Gizmos.DrawLine(center, obj.transform.position);
-    //              }
-    //          }
-    //     }
-    // }
+    // --- MÉTODO MODIFICADO PARA 2D ---
+    // Comentario: El código del profesor estaba pensado para 3D, usando Vector3 y filtrando por radio con Utilities.
+    // Cambios realizados en esta versión:
+    // 1) Se eliminó todo lo relacionado con Utilities.GetObjectsInRadius y Vector3.
+    // 2) Se usa Physics2D.OverlapCircleAll para detección eficiente en 2D.
+    // 3) Se adaptó el cálculo del ángulo de visión a 2D con Vector2.Angle.
+    // 4) Se mantiene la lógica de detectar jugadores y enemigos mediante tags y layers.
+    // 5) OnDrawGizmos original del profesor no se incluyó, se puede añadir si se desea visualizar en escena.
 }
