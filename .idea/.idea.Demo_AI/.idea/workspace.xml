@@ -4,7 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0cf94ae5-ca42-4089-b9b4-76ce559dbd7a" name="Changes" comment="" />
+    <list default="true" id="0cf94ae5-ca42-4089-b9b4-76ce559dbd7a" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Demo_AI/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Demo_AI/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Enemies/BaseEnemy.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Enemies/BaseEnemy.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Player/PlayerShooter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Player/PlayerShooter.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Settings/Lit2DSceneTemplate.scenetemplate" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Settings/Lit2DSceneTemplate.scenetemplate" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Assets/Sprites/Arte/Materiales/TransparentMaterial.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/_Assets/Sprites/Arte/Materiales/TransparentMaterial.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/TagManager.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/TagManager.asset" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -47,7 +56,7 @@
 }</component>
   <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
     <configuration name="Start Unity" type="RunUnityExe" factoryName="Unity Executable">
-      <option name="EXE_PATH" value="A:\Unity Proyects\6000.0.54f1\Editor\Unity.exe" />
+      <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\6000.0.54f1\Editor\Unity.exe" />
       <option name="PROGRAM_PARAMETERS" value="-projectPath A:\Proyectos\Demo_AI -debugCodeOptimization" />
       <option name="WORKING_DIRECTORY" value="A:\Proyectos\Demo_AI" />
       <option name="PASS_PARENT_ENVS" value="1" />
@@ -58,7 +67,7 @@
       <method v="2" />
     </configuration>
     <configuration name="Unit Tests (batch mode)" type="RunUnityExe" factoryName="Unity Executable">
-      <option name="EXE_PATH" value="A:\Unity Proyects\6000.0.54f1\Editor\Unity.exe" />
+      <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\6000.0.54f1\Editor\Unity.exe" />
       <option name="PROGRAM_PARAMETERS" value="-runTests -batchmode -projectPath A:\Proyectos\Demo_AI -testResults Logs/results.xml -logFile Logs/Editor.log -testPlatform EditMode -debugCodeOptimization" />
       <option name="WORKING_DIRECTORY" value="A:\Proyectos\Demo_AI" />
       <option name="PASS_PARENT_ENVS" value="1" />
@@ -119,7 +128,8 @@
       <workItem from="1759551347867" duration="3345000" />
       <workItem from="1759560913303" duration="5536000" />
       <workItem from="1759598185680" duration="12821000" />
-      <workItem from="1759616339923" duration="4093000" />
+      <workItem from="1759616339923" duration="4857000" />
+      <workItem from="1759636848489" duration="1779000" />
     </task>
     <servers />
   </component>

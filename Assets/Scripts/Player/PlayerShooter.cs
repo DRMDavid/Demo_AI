@@ -2,44 +2,73 @@ using UnityEngine;
 
 public class PlayerShooter : MonoBehaviour
 {
-    [Header("Config")]
+    [Header("Configuración del Proyectil")]
     public GameObject bulletPrefab;
     public Transform firePoint;
-
     public int proyectilDamage = 2;
     public float proyectilSpeed = 12f;
     public float fireRate = 0.25f;
 
-    [Header("Referencias")]
-    public Transform armaSprite; // sprite del arma que rota
+    [Header("Referencias Visuales")]
+    public Transform armaSprite; // El sprite del arma que rota
 
+    [Header("Sonido de Disparo")]
+    public AudioClip shootSound; // El clip de audio para el disparo
+
+    // --- Variables Privadas ---
     private float lastFireTime;
+    private AudioSource audioSource; // El componente que reproduce el sonido
+
+    // Awake se ejecuta antes que Start, asegurando que el AudioSource esté listo
+    private void Awake()
+    {
+        // Busca el componente AudioSource en este objeto
+        audioSource = GetComponent<AudioSource>();
+        
+        // Si no encuentra uno, lo añade automáticamente para evitar errores
+        if (audioSource == null) 
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+    }
 
     private void Update()
     {
-        if (Input.GetMouseButton(0)) // click izquierdo
+        // Mantener presionado el click izquierdo para disparar
+        if (Input.GetMouseButton(0)) 
         {
             TryShoot();
         }
 
+        // Apuntar el arma hacia el mouse
         ApuntarArma();
     }
 
     private void TryShoot()
     {
-        if (Time.time < lastFireTime + fireRate) return;
-        if (bulletPrefab == null || firePoint == null) return;
+        // Revisa si ha pasado suficiente tiempo desde el último disparo (controla el fire rate)
+        if (Time.time < lastFireTime + fireRate)
+        {
+            return;
+        } 
+        
+        // Revisa si las referencias necesarias existen
+        if (bulletPrefab == null || firePoint == null)
+        {
+            return;
+        }
 
+        // Actualiza el tiempo del último disparo
         lastFireTime = Time.time;
 
-        // Dirección hacia el mouse
+        // --- Instanciar la Bala ---
         Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mouseWorld.z = 0f;
         Vector2 dir = (mouseWorld - firePoint.position).normalized;
 
-        // Instanciar bala
         GameObject go = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
         PlayerBullet bullet = go.GetComponent<PlayerBullet>();
+        
         if (bullet != null)
         {
             bullet.Init(dir, proyectilSpeed, proyectilDamage);
@@ -47,6 +76,13 @@ public class PlayerShooter : MonoBehaviour
         else
         {
             Debug.LogError("El prefab de la bala NO tiene el script PlayerBullet!");
+        }
+
+        // --- Reproducir Sonido de Disparo ---
+        if (shootSound != null)
+        {
+            // Usa PlayOneShot para que los sonidos no se corten entre sí si disparas rápido
+            audioSource.PlayOneShot(shootSound);
         }
     }
 
@@ -66,12 +102,10 @@ public class PlayerShooter : MonoBehaviour
     {
         if (firePoint != null)
         {
-            // 🔴 punto en el FirePoint
             Gizmos.color = Color.red;
             Gizmos.DrawSphere(firePoint.position, 0.05f);
 
-            // 🟡 línea hacia el mouse (solo en modo juego)
-            if (Camera.main != null)
+            if (Application.isPlaying && Camera.main != null)
             {
                 Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 mouseWorld.z = 0;
