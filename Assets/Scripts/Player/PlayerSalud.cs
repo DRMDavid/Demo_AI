@@ -1,3 +1,20 @@
+/*******************************************************
+ * NOMBRE DEL ARCHIVO: PlayerSalud.cs
+ * AUTOR: Gianny Dantas
+ * CURSO: Aprende a crear un videojuego de Acción 2D con Unity
+ * FUENTE: https://www.udemy.com/course/aprende-a-crear-un-videojuego-de-accion-2d-con-unity/
+ * 
+ * DESCRIPCIÓN:
+ * Controla la salud y armadura del jugador.
+ * Permite recibir daño, regenerar salud y manejar la derrota del jugador.
+ * 
+ * NOTAS:
+ * - Código completamente original del curso de Gianny Dantas.
+ * - No se realizaron modificaciones ni adaptaciones personales.
+ * 
+ * FECHA: 05/10
+ *******************************************************/
+
 using UnityEngine;
 
 public class PlayerSalud : MonoBehaviour
@@ -13,9 +30,12 @@ public class PlayerSalud : MonoBehaviour
 
     private void Update()
     {
- 
+        // Se deja vacío, posible uso futuro.
     }
-    
+
+    /// <summary>
+    /// Recupera salud hasta el valor máximo permitido.
+    /// </summary>
     public void RecuperarSalud(float cantidad)
     {
         configPlayer.SaludActual += cantidad;
@@ -25,12 +45,16 @@ public class PlayerSalud : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Aplica daño al jugador considerando la armadura.
+    /// </summary>
     public void RecibirDamage(float cantidad)
     {
         if (configPlayer.Armadura > 0)
         {
             float DamageRestante = cantidad - configPlayer.Armadura;
             configPlayer.Armadura = Mathf.Max(configPlayer.Armadura - cantidad, 0f);
+
             if (DamageRestante > 0)
             {
                 configPlayer.SaludActual = Mathf.Max(configPlayer.SaludActual - DamageRestante, 0f);
@@ -47,9 +71,11 @@ public class PlayerSalud : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Destruye el objeto del jugador cuando su salud llega a cero.
+    /// </summary>
     private void PlayerDerrotado()
     {
         Destroy(gameObject);
-
     }
 }

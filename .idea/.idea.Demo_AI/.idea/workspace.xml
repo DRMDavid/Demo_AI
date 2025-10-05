@@ -47,7 +47,7 @@
 }</component>
   <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
     <configuration name="Start Unity" type="RunUnityExe" factoryName="Unity Executable">
-      <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\6000.0.54f1\Editor\Unity.exe" />
+      <option name="EXE_PATH" value="A:\Unity Proyects\6000.0.54f1\Editor\Unity.exe" />
       <option name="PROGRAM_PARAMETERS" value="-projectPath A:\Proyectos\Demo_AI -debugCodeOptimization" />
       <option name="WORKING_DIRECTORY" value="A:\Proyectos\Demo_AI" />
       <option name="PASS_PARENT_ENVS" value="1" />
@@ -55,10 +55,11 @@
       <option name="ENV_FILE_PATHS" value="" />
       <option name="REDIRECT_INPUT_PATH" value="" />
       <option name="PTY_MODE" value="Auto" />
+      <option name="MIXED_MODE_DEBUG" value="0" />
       <method v="2" />
     </configuration>
     <configuration name="Unit Tests (batch mode)" type="RunUnityExe" factoryName="Unity Executable">
-      <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\6000.0.54f1\Editor\Unity.exe" />
+      <option name="EXE_PATH" value="A:\Unity Proyects\6000.0.54f1\Editor\Unity.exe" />
       <option name="PROGRAM_PARAMETERS" value="-runTests -batchmode -projectPath A:\Proyectos\Demo_AI -testResults Logs/results.xml -logFile Logs/Editor.log -testPlatform EditMode -debugCodeOptimization" />
       <option name="WORKING_DIRECTORY" value="A:\Proyectos\Demo_AI" />
       <option name="PASS_PARENT_ENVS" value="1" />
@@ -66,6 +67,7 @@
       <option name="ENV_FILE_PATHS" value="" />
       <option name="REDIRECT_INPUT_PATH" value="" />
       <option name="PTY_MODE" value="Auto" />
+      <option name="MIXED_MODE_DEBUG" value="0" />
       <method v="2" />
     </configuration>
     <configuration name="Attach to Unity Editor &amp; Play" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="UNITY_ATTACH_AND_PLAY" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost">
@@ -120,7 +122,12 @@
       <workItem from="1759560913303" duration="5536000" />
       <workItem from="1759598185680" duration="12821000" />
       <workItem from="1759616339923" duration="4857000" />
+<<<<<<< Updated upstream
       <workItem from="1759636848489" duration="2537000" />
+=======
+      <workItem from="1759636848489" duration="2476000" />
+      <workItem from="1759688475540" duration="1992000" />
+>>>>>>> Stashed changes
     </task>
     <servers />
   </component>
