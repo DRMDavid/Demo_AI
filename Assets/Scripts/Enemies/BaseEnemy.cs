@@ -1,6 +1,6 @@
 /*******************************************************
  * NOMBRE DEL ARCHIVO: BaseEnemy.cs
- * AUTOR: [Tu nombre completo]
+ * AUTOR: Gael, David y Steve
  * BASADO EN: Clase Agent.cs del profesor de IA
  * DESCRIPCIÓN:
  * Script que maneja la lógica básica de enemigos en el juego:
