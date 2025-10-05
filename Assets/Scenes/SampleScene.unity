@@ -2435,7 +2435,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3343136049910659473, guid: e86fb2a53e504af49a727832aea09ff9, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 30.48
+      value: 26
       objectReference: {fileID: 0}
     - target: {fileID: 3343136049910659473, guid: e86fb2a53e504af49a727832aea09ff9, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2470,8 +2470,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7722863247507930539, guid: e86fb2a53e504af49a727832aea09ff9, type: 3}
+      propertyPath: obstacleAvoidanceDetectionRadius
+      value: 1.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7722863247507930539, guid: e86fb2a53e504af49a727832aea09ff9, type: 3}
       propertyPath: obstacleAvoidanceLayerMask.m_Bits
-      value: 512
+      value: 768
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
