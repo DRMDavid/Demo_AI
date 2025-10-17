@@ -1,6 +1,17 @@
 using UnityEngine;
 using System.Collections;
 
+/*
+Integrantes del equipo:
+- Hannin Abarca
+- David Sánchez
+- Gael Jiménez
+
+Referencia:
+Este código se basó en las ideas y mecánicas presentadas en el siguiente video:
+https://www.youtube.com/watch?v=YI5wRkTuok0
+*/
+
 public class EnemigoPesado : BaseEnemy
 {
     [Header("Ajustes Enemigo Pesado")]
@@ -32,12 +43,11 @@ public class EnemigoPesado : BaseEnemy
     // --- UPDATE ---
     void Update()
     {
-        
         if (Input.GetKeyDown(KeyCode.T))
         {
             TakeDamage(1);
         }
-        
+
         if (_steeringBehaviors == null) return;
 
         // Buscar jugador si aún no está cacheado
