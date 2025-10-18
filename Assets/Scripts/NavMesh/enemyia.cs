@@ -1,8 +1,9 @@
 // ================================================================
 // Archivo: enemyia.cs
-// Descripción: Controla el comportamiento básico de un
+// DescripciÃ³n: Controla el comportamiento bÃ¡sico de un
 // enemigo que sigue al jugador usando un NavMeshAgent.
 // IMPLEMENTADO POR: Gael, David y Steve
+// Codigo basado en el siguiente tutorial : https://youtu.be/w4unf6meEvI?si=JUwLEssD4rQqWUh6
 // ================================================================
 
 using System.Collections;
@@ -12,7 +13,7 @@ using UnityEngine.AI;
 
 public class EnemyPrueba : MonoBehaviour
 {
-    [Header("Configuración del Enemigo")]
+    [Header("ConfiguraciÃ³n del Enemigo")]
     [Tooltip("Transform del objetivo a seguir (normalmente el jugador).")]
     [SerializeField] private Transform target;
 
@@ -43,7 +44,7 @@ public class EnemyPrueba : MonoBehaviour
     }
 
     /// <summary>
-    /// Detecta colisiones con el jugador y aplica daño.
+    /// Detecta colisiones con el jugador y aplica daÃ±o.
     /// </summary>
     /// <param name="other">Collider que entra en el trigger.</param>
     private void OnTriggerEnter2D(Collider2D other)
@@ -54,7 +55,7 @@ public class EnemyPrueba : MonoBehaviour
             // Intenta obtener el script de movimiento del jugador
             PlayerMovimiento2D jugador = other.GetComponent<PlayerMovimiento2D>();
 
-            // Si el jugador existe, se aplica daño
+            // Si el jugador existe, se aplica daÃ±o
             if (jugador != null)
             {
                 jugador.RecibirDano(1); // Resta una vida (puede ajustarse)
