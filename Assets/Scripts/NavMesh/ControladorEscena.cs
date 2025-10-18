@@ -1,7 +1,8 @@
 // ================================================================
 // Archivo: ControladorEscena.cs
-// Descripción: Permite reiniciar la escena actual al presionar la tecla 'R'.
+// DescripciÃ³n: Permite reiniciar la escena actual al presionar la tecla 'R'.
 // IMPLEMENTADO POR: Gael, David y Steve
+// Codigo basado en el tutorial: https://youtu.be/Pe2qwTuT0P0?si=dK7jrLDozvMoDjFm
 // ================================================================
 
 using UnityEngine;
