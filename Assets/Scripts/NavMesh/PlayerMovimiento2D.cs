@@ -1,9 +1,13 @@
-// PlayerMovimiento2D.cs
+// ================================================================
+// Archivo: PlayerMovimiento2D.cs
+// Descripción: Controla el movimiento y la vida del jugador en un entorno 2D.
+// Permite desplazarse con el teclado y recibir daño.
+// IMPLEMENTADO POR: Gael, David y Steve
+// ================================================================
 using UnityEngine;
 using UnityEngine.SceneManagement; // Necesario para reiniciar la escena
 
-// Asegura que el GameObject tenga siempre un componente Rigidbody2D.
-[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Rigidbody2D))] // Asegura que el jugador tenga un Rigidbody2D
 public class PlayerMovimiento2D : MonoBehaviour
 {
     [Header("Configuración de Movimiento")]
@@ -15,53 +19,53 @@ public class PlayerMovimiento2D : MonoBehaviour
     [SerializeField] public int vida = 3;
 
     // --- Componentes y Variables Internas ---
-    private Rigidbody2D rb2D;
-    private Vector2 direccionMovimiento; // Guarda la dirección del input (ej: arriba, izquierda)
+    private Rigidbody2D rb2D;              // Referencia al componente Rigidbody2D
+    private Vector2 direccionMovimiento;   // Dirección del movimiento (input del jugador)
 
     private void Awake()
     {
-        // Obtener la referencia al componente Rigidbody2D una sola vez.
+        // Obtiene la referencia al Rigidbody2D solo una vez al iniciar.
         rb2D = GetComponent<Rigidbody2D>();
     }
 
     private void Update()
     {
         // --- LECTURA DE INPUT ---
-        // Se ejecuta en cada fotograma. Es el mejor lugar para leer inputs.
+        // Se ejecuta cada fotograma. Ideal para leer entradas del teclado.
 
         // Input.GetAxisRaw devuelve -1, 0 o 1 (sin suavizado), ideal para respuesta inmediata.
         float movX = Input.GetAxisRaw("Horizontal"); // Teclas A/D o flechas izquierda/derecha
         float movY = Input.GetAxisRaw("Vertical");   // Teclas W/S o flechas arriba/abajo
 
-        // Normalizamos el vector para que el movimiento diagonal no sea más rápido.
+        // Normaliza el vector para evitar que el movimiento diagonal sea más rápido.
         direccionMovimiento = new Vector2(movX, movY).normalized;
     }
 
     private void FixedUpdate()
     {
         // --- APLICACIÓN DE FÍSICAS ---
-        // Se ejecuta a un ritmo fijo. Es el mejor lugar para aplicar fuerzas o cambiar la velocidad.
+        // Se ejecuta a intervalos fijos, ideal para manipular físicas o movimiento.
 
-        // Movemos el personaje cambiando directamente su velocidad.
+        // Actualiza la velocidad del Rigidbody2D en función de la dirección y la velocidad configurada.
         rb2D.linearVelocity = direccionMovimiento * velocidad;
     }
 
     /// <summary>
-    /// Reduce la vida del jugador y comprueba si ha sido derrotado.
+    /// Aplica daño al jugador y verifica si ha perdido todas sus vidas.
     /// </summary>
-    /// <param name="cantidadDano">La cantidad de vida a restar.</param>
+    /// <param name="cantidadDano">Cantidad de vida que se resta.</param>
     public void RecibirDano(int cantidadDano)
     {
         vida -= cantidadDano;
         Debug.Log("¡El jugador ha recibido daño! Vidas restantes: " + vida);
 
+        // Si la vida llega a cero o menos, el jugador es destruido.
         if (vida <= 0)
         {
             Debug.Log("El jugador ha sido derrotado.");
-            // Destruye el objeto del jugador.
             Destroy(gameObject);
 
-            // Opcional: Si quieres reiniciar la escena automáticamente al morir:
+            // 🔹 Opción: Reiniciar automáticamente la escena al morir.
             // SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
     }
