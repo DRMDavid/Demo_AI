@@ -26,4 +26,18 @@ public class EnemyPrueba : MonoBehaviour
     {
         agent.SetDestination(target.position);
     }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            // Intenta obtener el script del jugador
+            PlayerMovimiento2D jugador = other.GetComponent<PlayerMovimiento2D>();
+            if (jugador != null)
+            {
+                jugador.RecibirDano(1); // quita una vida (puedes cambiar el valor)
+            }
+        }
+    }
+
 }
