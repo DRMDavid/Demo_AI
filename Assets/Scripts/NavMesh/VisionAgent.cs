@@ -4,6 +4,7 @@
 // jugador y lo persigue por un tiempo determinado antes de regresar 
 // a su posición inicial.
 // IMPLEMENTADO POR: Gael, David y Steve
+// Codigo basado en el siguiente tutorial : https://youtu.be/w4unf6meEvI?si=JUwLEssD4rQqWUh6
 // ================================================================
 
 using System.Collections;
