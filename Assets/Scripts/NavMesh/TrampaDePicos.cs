@@ -3,6 +3,7 @@
 // Descripción: Gestiona el comportamiento de una trampa de picos que 
 // inflige daño al jugador al entrar en contacto con ella.
 // IMPLEMENTADO POR: Gael, David y Steve
+// Codigo basado en el siguiente tutorial : https://www.youtube.com/watch?v=2IvpxG1dyls
 // ================================================================
 
 using UnityEngine;

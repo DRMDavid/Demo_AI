@@ -3,6 +3,7 @@
 // Descripción: Controla el movimiento y la vida del jugador en un entorno 2D.
 // Permite desplazarse con el teclado y recibir daño.
 // IMPLEMENTADO POR: Gael, David y Steve
+// Codigo basado en el siguiente tutorial : https://www.youtube.com/watch?v=zKu6bGc4yJg
 // ================================================================
 using UnityEngine;
 using UnityEngine.SceneManagement; // Necesario para reiniciar la escena
