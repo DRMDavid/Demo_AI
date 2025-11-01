@@ -36,7 +36,7 @@ public class NavMeshEscapistEnemy : BaseEnemy
 
     // --- TEMPORIZADORES Y TIEMPOS ---
     [Header("Tiempos de Estado")]
-    [SerializeField] private float tirednessDuration = 7f;       // Activo antes de cansarse
+    [SerializeField] private float tirednessDuration = 12f;       // Activo antes de cansarse
     [SerializeField] private float activationDuration = 5f;      // Cansado antes de volver a estar activo
     [SerializeField] private float timeWithoutLOSUntilSeek = 2f; // Tiempo sin visión antes de moverse otra vez
 
