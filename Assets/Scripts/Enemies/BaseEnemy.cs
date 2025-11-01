@@ -48,7 +48,7 @@ public class BaseEnemy : MonoBehaviour
     public float invulnerabilityTime = 0.2f;          // Tiempo de invulnerabilidad tras recibir daño
 
     // --- Variables privadas ---
-    private SpriteRenderer _spriteRenderer;           // Referencia al SpriteRenderer del enemigo
+    protected SpriteRenderer _spriteRenderer;           // Referencia al SpriteRenderer del enemigo
     private Color _originalColor;                      // Color original para restaurar después del flash
     private bool _canTakeDamage = true;               // Controla si puede recibir daño
 
