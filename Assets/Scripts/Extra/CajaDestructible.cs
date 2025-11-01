@@ -79,6 +79,14 @@ public class CajaDestructible : MonoBehaviour
             AudioSource.PlayClipAtPoint(sonidoDestruccion, Camera.main.transform.position);
         }
 
+        // 💡 Lógica de NavMesh: Notificar al gestor antes de destruir el obstáculo.
+        // Esto le indica al NavMesh Surface que recalcule el camino en esta posición.
+        NavMeshUpdater updater = NavMeshUpdater.Instance;
+        if (updater != null)
+        {
+            updater.RequestNavMeshUpdate(transform.position); 
+        }
+
         // Elimina el objeto de la caja de la escena.
         Destroy(gameObject);
     }
