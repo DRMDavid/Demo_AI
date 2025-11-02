@@ -1710,7 +1710,9 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Wall
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 7840899911904800497, guid: ae9fd6b0addf7d14d80cca43861b8229, type: 3}
+    - {fileID: 8569566722253839030, guid: ae9fd6b0addf7d14d80cca43861b8229, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
@@ -3835,6 +3837,7 @@ MonoBehaviour:
   agentAcceleration: 50
   detectionRadius: 12
   fleeDistance: 5
+  stoppingDistance: 0.2
   tirednessDuration: 12
   activationDuration: 6
   timeWithoutLOSUntilSeek: 1
@@ -3845,7 +3848,7 @@ MonoBehaviour:
   bulletSpeed: 10
   lineOfSightMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 256
   tiredBlinkColor: {r: 0, g: 0, b: 1, a: 1}
   blinkInterval: 0.2
 --- !u!114 &6469594424432144681

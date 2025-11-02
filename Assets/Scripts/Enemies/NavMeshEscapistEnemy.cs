@@ -10,8 +10,10 @@ using NavMeshPlus.Extensions;
  * Este enemigo puede huir del jugador, disparar proyectiles,
  * y cambiar entre estados "Activo" y "Cansado" con parpadeo visual.
  *
- * @author Hannin Abarca, David Sánchez, Gael Jiménez
- * Codigo basado en el siguiente tutorial : 
+ * @author Hannin Abarca
+ * @coauthor David Sánchez
+ * @coauthor Gael Jiménez
+ * Código basado en:
  * https://www.youtube.com/watch?v=SDfEytEjb5o
  * https://www.youtube.com/watch?v=HRX0pUSucW4
  */
@@ -22,97 +24,92 @@ public class NavMeshEscapistEnemy : BaseEnemy
 {
     /**
      * @enum EnemyState
-     * @brief Representa los posibles estados del enemigo.
+     * @brief Estados posibles del enemigo.
      */
-    public enum EnemyState
-    {
-        Active, ///< Estado activo: puede huir y disparar
-        Tired   ///< Estado cansado: dispara más lento, no huye
-    }
+    public enum EnemyState { Active, Tired }
 
     [Header("Estado Actual")]
     [SerializeField] private EnemyState currentState = EnemyState.Active; ///< Estado inicial del enemigo
 
     // --- COMPONENTES ---
-    private NavMeshAgent agent;          ///< Componente NavMeshAgent para moverse por el mapa
-    private Transform player;            ///< Transform del jugador a perseguir o evitar
-    private Color originalColor;         ///< Color original del sprite para restaurar
-    private Coroutine activationCoroutine; ///< Corrutina que maneja la reactivación del enemigo
-    private Coroutine tirednessCoroutine;  ///< Corrutina que maneja el tiempo hasta cansarse
-    private Coroutine blinkCoroutine;      ///< Corrutina que maneja el parpadeo visual cuando está cansado
+    private NavMeshAgent agent;          ///< Componente NavMeshAgent para moverse
+    private Transform player;            ///< Transform del jugador
+    private Color originalColor;         ///< Color original del sprite
+    private Coroutine activationCoroutine; ///< Corrutina para transición a activo
+    private Coroutine tirednessCoroutine;  ///< Corrutina para transición a cansado
+    private Coroutine blinkCoroutine;      ///< Corrutina de parpadeo visual
 
     // --- MOVIMIENTO Y HUIDA ---
     [Header("Movimiento y Flee")]
     [SerializeField] private float agentSpeed = 3.2f;            ///< Velocidad máxima del agente
     [SerializeField] private float agentAcceleration = 28f;      ///< Aceleración del agente
-    [SerializeField] private float detectionRadius = 9f;         ///< Radio de detección del jugador para huir
-    [SerializeField] private float fleeDistance = 7.5f;          ///< Distancia a la que huye al detectar al jugador
+    [SerializeField] private float detectionRadius = 9f;         ///< Radio de detección para huir
+    [SerializeField] private float fleeDistance = 7.5f;          ///< Distancia de huida
+    [SerializeField] private float stoppingDistance = 0.2f;      ///< Distancia mínima para considerar llegada (editable)
 
     private bool isFleeing = false;       ///< Indica si actualmente está huyendo
-    private Vector3 fleeDebugPosition;    ///< Posición objetivo de huida (para depuración)
+    private Vector3 fleeDebugPosition;    ///< Posición objetivo de huida para depuración
 
-    // --- TEMPORIZADORES Y TIEMPOS ---
+    // --- TEMPORIZADORES ---
     [Header("Tiempos de Estado")]
-    [SerializeField] private float tirednessDuration = 12f;       ///< Tiempo que permanece activo antes de cansarse
-    [SerializeField] private float activationDuration = 5f;      ///< Tiempo que permanece cansado antes de volver a activo
-    [SerializeField] private float timeWithoutLOSUntilSeek = 2f; ///< Tiempo sin ver al jugador antes de buscarlo
+    [SerializeField] private float tirednessDuration = 12f;       ///< Tiempo activo antes de cansarse
+    [SerializeField] private float activationDuration = 5f;       ///< Tiempo cansado antes de volver a activo
+    [SerializeField] private float timeWithoutLOSUntilSeek = 2f; ///< Tiempo sin visión antes de perseguir
 
-    private float timeSinceLastSawPlayer = 0f; ///< Contador de tiempo sin línea de visión al jugador
+    private float timeSinceLastSawPlayer = 0f; ///< Contador desde que perdió visión
 
     // --- DISPARO ---
     [Header("Disparo")]
-    [SerializeField] private GameObject bulletPrefab;           ///< Prefab de la bala a disparar
-    [SerializeField] private Transform shootPoint;              ///< Punto desde el cual se disparan las balas
-    [SerializeField] private float shootCooldownActive = 1.1f; ///< Tiempo entre disparos en estado activo
-    [SerializeField] private float shootCooldownTired = 2.3f;  ///< Tiempo entre disparos en estado cansado
+    [SerializeField] private GameObject bulletPrefab;           ///< Prefab de la bala
+    [SerializeField] private Transform shootPoint;              ///< Punto desde el cual dispara
+    [SerializeField] private float shootCooldownActive = 1.1f; ///< Tiempo entre disparos activo
+    [SerializeField] private float shootCooldownTired = 2.3f;  ///< Tiempo entre disparos cansado
     [SerializeField] private float bulletSpeed = 11.5f;        ///< Velocidad de la bala
 
-    private float nextShootTime = 0f; ///< Temporizador interno para controlar el cooldown de disparo
+    private float nextShootTime = 0f; ///< Temporizador interno para controlar cooldown
 
     // --- VISIÓN / RAYCAST ---
     [Header("Visión y Visuales")]
-    [SerializeField] private LayerMask lineOfSightMask;        ///< Máscara de colisión para comprobar línea de visión
-    [SerializeField] private Color tiredBlinkColor = Color.blue;///< Color de parpadeo cuando está cansado
-    [SerializeField] private float blinkInterval = 0.25f;       ///< Intervalo de parpadeo del sprite
+    [SerializeField] private LayerMask lineOfSightMask;        ///< Máscara para comprobar línea de visión
+    [SerializeField] private Color tiredBlinkColor = Color.blue;///< Color al parpadear cuando está cansado
+    [SerializeField] private float blinkInterval = 0.25f;       ///< Intervalo de parpadeo
 
-    private const float FIXED_Z_POSITION = 0f; ///< Posición Z constante para mantener el enemigo en 2D
+    private const float FIXED_Z_POSITION = 0f; ///< Posición Z fija para mantener 2D
 
     // ===============================
     //          INICIALIZACIÓN
     // ===============================
     /**
-     * @brief Inicializa variables, componentes y estados del enemigo.
+     * @brief Inicializa componentes, variables y estado inicial del enemigo.
      */
     protected override void Start()
     {
         base.Start();
 
         if (_senses != null) _senses.enabled = false;           ///< Desactiva sensores si existen
-        if (_steeringBehaviors != null) _steeringBehaviors.enabled = false; ///< Desactiva comportamientos de steering
+        if (_steeringBehaviors != null) _steeringBehaviors.enabled = false; ///< Desactiva steering
 
         agent = GetComponent<NavMeshAgent>();                   ///< Obtiene NavMeshAgent
         player = GameObject.FindGameObjectWithTag("Player")?.transform; ///< Obtiene jugador
         if (_spriteRenderer != null) originalColor = _spriteRenderer.color; ///< Guarda color original
 
-        agent.updateRotation = false; ///< Evita rotación automática del agente
-        agent.updateUpAxis = false;   ///< Evita ajuste del eje Y
+        agent.updateRotation = false; ///< Evita rotación automática
+        agent.updateUpAxis = false;   ///< Evita ajuste eje Y
         agent.speed = agentSpeed;
         agent.acceleration = agentAcceleration;
 
         currentHP = 15; ///< Vida inicial
 
-        // Transición al estado inicial configurado
-        if (currentState == EnemyState.Active)
-            TransitionToActive();
-        else
-            TransitionToTired();
+        // Transición al estado inicial
+        if (currentState == EnemyState.Active) TransitionToActive();
+        else TransitionToTired();
     }
 
     // ===============================
     //            UPDATE
     // ===============================
     /**
-     * @brief Actualiza comportamiento cada frame según estado.
+     * @brief Lógica por frame según estado del enemigo.
      */
     private void Update()
     {
@@ -122,7 +119,7 @@ public class NavMeshEscapistEnemy : BaseEnemy
             return;
         }
 
-        // Mantiene posición Z fija
+        // Mantener Z fijo
         if (transform.position.z != FIXED_Z_POSITION)
             transform.position = new Vector3(transform.position.x, transform.position.y, FIXED_Z_POSITION);
 
@@ -130,14 +127,14 @@ public class NavMeshEscapistEnemy : BaseEnemy
         if (nextShootTime > 0)
             nextShootTime -= Time.deltaTime;
 
-        // Ejecuta lógica según estado
+        // Lógica según estado
         switch (currentState)
         {
             case EnemyState.Active:
                 HandleActiveState(); ///< Huida y disparo rápido
                 break;
             case EnemyState.Tired:
-                HandleTiredState();  ///< Solo disparo lento
+                HandleTiredState();  ///< Disparo lento solo
                 break;
         }
     }
@@ -147,29 +144,27 @@ public class NavMeshEscapistEnemy : BaseEnemy
     // ===============================
     /**
      * @brief Lógica del enemigo cuando está activo.
-     *
-     * Incluye huida si el jugador está cerca y disparo.
+     * Incluye huida, detección y disparo.
      */
     private void HandleActiveState()
     {
         float distance = Vector3.Distance(transform.position, player.position); ///< Distancia al jugador
         bool hasLOS = CheckLOS(); ///< Comprueba línea de visión
 
-        // Si jugador está dentro del radio de detección → huir
         if (distance <= detectionRadius && !isFleeing)
         {
             if (TryFlee())
             {
                 isFleeing = true;
                 if (tirednessCoroutine != null) StopCoroutine(tirednessCoroutine);
-                tirednessCoroutine = StartCoroutine(TirednessTimer()); ///< Empieza cronómetro de cansancio
+                tirednessCoroutine = StartCoroutine(TirednessTimer()); ///< Comienza cronómetro de cansancio
             }
         }
 
-        // Control de llegada a destino de huida
+        // Control llegada a destino de huida
         if (isFleeing)
         {
-            if (!agent.pathPending && agent.remainingDistance < 0.2f)
+            if (!agent.pathPending && agent.remainingDistance < stoppingDistance)
             {
                 isFleeing = false;
                 agent.ResetPath();
@@ -192,7 +187,9 @@ public class NavMeshEscapistEnemy : BaseEnemy
             }
         }
 
-        TryShoot(player.position); ///< Disparo hacia el jugador
+        // Disparo solo si hay línea de visión
+        if (hasLOS)
+            TryShoot(player.position);
     }
 
     // ===============================
@@ -200,12 +197,12 @@ public class NavMeshEscapistEnemy : BaseEnemy
     // ===============================
     /**
      * @brief Lógica del enemigo cuando está cansado.
-     *
-     * Solo dispara con cooldown más largo, no huye.
+     * Solo dispara si ve al jugador, no huye.
      */
     private void HandleTiredState()
     {
-        TryShoot(player.position);
+        if (CheckLOS())
+            TryShoot(player.position);
     }
 
     // ===============================
@@ -232,7 +229,6 @@ public class NavMeshEscapistEnemy : BaseEnemy
     private void TransitionToTired()
     {
         currentState = EnemyState.Tired;
-
         StopAgent();
 
         if (activationCoroutine != null) StopCoroutine(activationCoroutine);
@@ -245,27 +241,18 @@ public class NavMeshEscapistEnemy : BaseEnemy
     // ===============================
     //        COROUTINES DE TIEMPO
     // ===============================
-    /**
-     * @brief Cronómetro que determina cuando pasar a estado cansado.
-     */
     private IEnumerator TirednessTimer()
     {
         yield return new WaitForSeconds(tirednessDuration);
         TransitionToTired();
     }
 
-    /**
-     * @brief Cronómetro que determina cuando pasar a estado activo.
-     */
     private IEnumerator ActivationTimer()
     {
         yield return new WaitForSeconds(activationDuration);
         TransitionToActive();
     }
 
-    /**
-     * @brief Corrutina que hace parpadear al enemigo cuando está cansado.
-     */
     private IEnumerator TirednessBlink()
     {
         if (_spriteRenderer == null) yield break;
@@ -283,18 +270,19 @@ public class NavMeshEscapistEnemy : BaseEnemy
     //        LÓGICA DE HUIDA
     // ===============================
     /**
-     * @brief Calcula dirección y destino de huida del enemigo.
-     * @return true si pudo establecer un destino de huida válido.
+     * @brief Calcula dirección y destino de huida.
+     * @return true si pudo establecer un destino válido.
      */
     private bool TryFlee()
     {
         Vector3 fleeDir = (transform.position - player.position).normalized;
         Vector3 targetPos = transform.position + (fleeDir * fleeDistance);
-
         fleeDebugPosition = targetPos;
 
         NavMeshHit hit;
-        if (NavMesh.SamplePosition(targetPos, out hit, fleeDistance * 0.5f, NavMesh.AllAreas))
+        int walkableMask = 1 << NavMesh.GetAreaFromName("Walkable"); ///< Solo zonas caminables
+
+        if (NavMesh.SamplePosition(targetPos, out hit, fleeDistance * 0.5f, walkableMask))
         {
             fleeDebugPosition = hit.position;
             agent.SetDestination(fleeDebugPosition);
@@ -302,7 +290,7 @@ public class NavMeshEscapistEnemy : BaseEnemy
         }
 
         targetPos = transform.position - (fleeDir * fleeDistance);
-        if (NavMesh.SamplePosition(targetPos, out hit, fleeDistance * 0.5f, NavMesh.AllAreas))
+        if (NavMesh.SamplePosition(targetPos, out hit, fleeDistance * 0.5f, walkableMask))
         {
             fleeDebugPosition = hit.position;
             agent.SetDestination(fleeDebugPosition);
@@ -315,10 +303,6 @@ public class NavMeshEscapistEnemy : BaseEnemy
     // ===============================
     //       DISPARO Y VISIÓN
     // ===============================
-    /**
-     * @brief Maneja el disparo hacia un objetivo.
-     * @param targetPos Posición del objetivo
-     */
     private void TryShoot(Vector3 targetPos)
     {
         Vector3 dir = (targetPos - transform.position).normalized;
@@ -335,8 +319,8 @@ public class NavMeshEscapistEnemy : BaseEnemy
     }
 
     /**
-     * @brief Verifica si hay línea de visión hacia el jugador.
-     * @return true si no hay obstáculos
+     * @brief Comprueba si hay línea de visión hacia el jugador.
+     * @return true si no hay obstáculos entre enemigo y jugador
      */
     private bool CheckLOS()
     {
@@ -348,9 +332,6 @@ public class NavMeshEscapistEnemy : BaseEnemy
         return hit.collider == null;
     }
 
-    /**
-     * @brief Instancia una bala y le aplica velocidad.
-     */
     protected void Shoot(Quaternion rotation, Vector3 dir)
     {
         if (!bulletPrefab || !shootPoint) return;
@@ -361,9 +342,9 @@ public class NavMeshEscapistEnemy : BaseEnemy
             rb.linearVelocity = dir * bulletSpeed;
     }
 
-    /**
-     * @brief Detiene el NavMeshAgent.
-     */
+    // ===============================
+    //        CONTROL DE AGENTE
+    // ===============================
     private void StopAgent()
     {
         if (agent.isOnNavMesh)
@@ -373,11 +354,9 @@ public class NavMeshEscapistEnemy : BaseEnemy
         }
     }
 
-    private void OnCollisionStay2D(Collision2D collision) { }
-
-    /**
-     * @brief Dibuja gizmos para debugging en el editor.
-     */
+    // ===============================
+    //           GIZMOS
+    // ===============================
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
