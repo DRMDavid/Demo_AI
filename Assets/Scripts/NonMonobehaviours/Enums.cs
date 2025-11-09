@@ -1,6 +1,13 @@
+/*******************************************************
+ * NOMBRE DEL ARCHIVO: Enums.cs
+ * AUTOR: Gael, David y Steve
+ * BASADO EN: Código original del repositorio
+ * DESCRIPCIÓN:
+ * Archivo de enumeraciones utilizado por varios scripts del juego.
+ * Actualizado para incluir los estados del Jefe (Boss FSM).
+ *******************************************************/
+
 using UnityEngine;
-
-
 
 // Enum 
 public enum ESteeringBehaviors : byte
@@ -8,10 +15,28 @@ public enum ESteeringBehaviors : byte
     DontMove,
     Seek,
     Flee,
-    Pursuit, // qué valor tendría pursuit si flee=42? si a uno tú le das valor específico, pero al siguiente no, entonces es el valor siguiente de dicho valor asignado. En este caso, 43.
+    Pursuit, 
     Evade,
     Arrive,
 }
+
+// NUEVOS ESTADOS PRINCIPALES DEL JEFE (Nivel Superior de la FSM)
+public enum EBossState : byte
+{
+    IdleMove,  // Buscar al jugador (NavMesh: SetDestination)
+    Melee,     // Rango de contacto o golpe (NavMesh: Cerca)
+    Ranged,    // Rango de distancia (NavMesh: Detenerse o Huir un poco)
+    Ultimate,  // Ataque de alta prioridad (HP bajo)
+}
+
+// NUEVOS SUBESTADOS DE ATAQUE (Para el Ciclo Selector)
+public enum EBossAttackType : byte
+{
+    BasicAttack = 0,     // Ataque Básico (Tiro Único o Golpe simple)
+    SpecialAttack1 = 1,  // Ataque Especial 1 (Área o Tiro Triple)
+    SpecialAttack2 = 2,  // Ataque Especial 2 (Dash o Ráfaga Circular)
+}
+
 
 // sirve como bits para una máscara de bits.
 public enum ELayer
