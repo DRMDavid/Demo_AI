@@ -3,161 +3,168 @@ using UnityEngine;
 using UnityEngine.AI;
 using NavMeshPlus.Extensions;
 
-// Asegura que el enemigo tiene los componentes de NavMesh necesarios
+/**
+ * @file NavMeshEscapistEnemy.cs
+ * @brief Script para un enemigo escapista que usa NavMesh en Unity 2D.
+ *
+ * Este enemigo puede huir del jugador, disparar proyectiles,
+ * y cambiar entre estados "Activo" y "Cansado" con parpadeo visual.
+ *
+ * @author Hannin Abarca
+ * @coauthor David Sánchez
+ * @coauthor Gael Jiménez
+ * Código basado en:
+ * https://www.youtube.com/watch?v=SDfEytEjb5o
+ * https://www.youtube.com/watch?v=HRX0pUSucW4
+ */
+
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(AgentOverride2d))]
 public class NavMeshEscapistEnemy : BaseEnemy
 {
-    // --- ESTADOS --- (Req C)
-    public enum EnemyState
-    {
-        Active,
-        Tired
-    }
-    
-    [Header("NavMeshEscapist Config")]
-    [SerializeField] private EnemyState currentState = EnemyState.Active; 
-    private NavMeshAgent agent;
-    protected Transform player;
-    private Color originalColor; 
+    /**
+     * @enum EnemyState
+     * @brief Estados posibles del enemigo.
+     */
+    public enum EnemyState { Active, Tired }
 
-    // --- MOVIMIENTO (Req B) y Detección ---
-    [Header("Movimiento y Detección")]
-    [Tooltip("La velocidad máxima del agente.")]
-    [SerializeField] private float agentSpeed = 3f;
-    [Tooltip("La aceleración rápida del agente (movimiento 'ligero').")]
-    [SerializeField] private float agentAcceleration = 20f;
-    [SerializeField] private float detectionRadius = 10f; // Radio para iniciar la huida (Req B Activo)
-    [SerializeField] private float fleeDistance = 8f;     // Distancia que intenta huir (Req C Activo)
+    [Header("Estado Actual")]
+    [SerializeField] private EnemyState currentState = EnemyState.Active; ///< Estado inicial del enemigo
 
-    // --- ESTADOS Y TIEMPOS ---
-    [Header("Estados y Tiempos")]
-    [SerializeField] private float activationDuration = 3f; // Duración del cansancio (Req A Cansado)
-    [SerializeField] private float tirednessDuration = 5f; // Duración de actividad (Req D Activo)
-    [SerializeField] private float timeWithoutLOSUntilSeek = 2.0f; // Tiempo sin LOS para reanudar persecución (Req F Activo)
-    private float timeSinceLastSawPlayer = 0f;
-    private Coroutine activationCoroutine; 
-    private Coroutine tirednessCoroutine;
-    private bool isFleeing = false;
-    
-    // --- COMBATE ---
-    [Header("Combate")]
-    [SerializeField] private GameObject bulletPrefab;
-    [SerializeField] private Transform shootPoint;
-    [SerializeField] private float shootCooldownActive = 1.0f;
-    [SerializeField] private float shootCooldownTired = 2.0f; // Dispara más lento (Req D.Extra Cansado)
-    [SerializeField] private float bulletSpeed = 15f; // Velocidad de la bala
-    private float nextShootTime = 0f;
+    // --- COMPONENTES ---
+    private NavMeshAgent agent;          ///< Componente NavMeshAgent para moverse
+    private Transform player;            ///< Transform del jugador
+    private Color originalColor;         ///< Color original del sprite
+    private Coroutine activationCoroutine; ///< Corrutina para transición a activo
+    private Coroutine tirednessCoroutine;  ///< Corrutina para transición a cansado
+    private Coroutine blinkCoroutine;      ///< Corrutina de parpadeo visual
 
-    // --- RAYCAST Y GIZMOS ---
-    [Header("Raycast (Línea de Visión)")]
-    [SerializeField] private LayerMask lineOfSightMask; // Capas que bloquean la visión (Req A.1 Activo)
-    private Vector3 fleeDebugPosition; // Para el gizmo (Req C.1 Activo)
+    // --- MOVIMIENTO Y HUIDA ---
+    [Header("Movimiento y Flee")]
+    [SerializeField] private float agentSpeed = 3.2f;            ///< Velocidad máxima del agente
+    [SerializeField] private float agentAcceleration = 28f;      ///< Aceleración del agente
+    [SerializeField] private float detectionRadius = 9f;         ///< Radio de detección para huir
+    [SerializeField] private float fleeDistance = 7.5f;          ///< Distancia de huida
+    [SerializeField] private float stoppingDistance = 0.2f;      ///< Distancia mínima para considerar llegada (editable)
 
-    // --- VISUALES ---
-    [Header("Visuales de Cansancio")]
-    [SerializeField] private Color tiredBlinkColor = Color.blue; // Parpadeo azul (Req D Cansado)
-    [SerializeField] private float blinkInterval = 0.2f; // Velocidad del parpadeo
-    private Coroutine blinkCoroutine;
-    private const float FIXED_Z_POSITION = 0f; // Corrige el bug de visibilidad Z
+    private bool isFleeing = false;       ///< Indica si actualmente está huyendo
+    private Vector3 fleeDebugPosition;    ///< Posición objetivo de huida para depuración
 
-    // --- INICIALIZACIÓN (Req D) ---
+    // --- TEMPORIZADORES ---
+    [Header("Tiempos de Estado")]
+    [SerializeField] private float tirednessDuration = 12f;       ///< Tiempo activo antes de cansarse
+    [SerializeField] private float activationDuration = 5f;       ///< Tiempo cansado antes de volver a activo
+    [SerializeField] private float timeWithoutLOSUntilSeek = 2f; ///< Tiempo sin visión antes de perseguir
 
+    private float timeSinceLastSawPlayer = 0f; ///< Contador desde que perdió visión
+
+    // --- DISPARO ---
+    [Header("Disparo")]
+    [SerializeField] private GameObject bulletPrefab;           ///< Prefab de la bala
+    [SerializeField] private Transform shootPoint;              ///< Punto desde el cual dispara
+    [SerializeField] private float shootCooldownActive = 1.1f; ///< Tiempo entre disparos activo
+    [SerializeField] private float shootCooldownTired = 2.3f;  ///< Tiempo entre disparos cansado
+    [SerializeField] private float bulletSpeed = 11.5f;        ///< Velocidad de la bala
+
+    private float nextShootTime = 0f; ///< Temporizador interno para controlar cooldown
+
+    // --- VISIÓN / RAYCAST ---
+    [Header("Visión y Visuales")]
+    [SerializeField] private LayerMask lineOfSightMask;        ///< Máscara para comprobar línea de visión
+    [SerializeField] private Color tiredBlinkColor = Color.blue;///< Color al parpadear cuando está cansado
+    [SerializeField] private float blinkInterval = 0.25f;       ///< Intervalo de parpadeo
+
+    private const float FIXED_Z_POSITION = 0f; ///< Posición Z fija para mantener 2D
+
+    // ===============================
+    //          INICIALIZACIÓN
+    // ===============================
+    /**
+     * @brief Inicializa componentes, variables y estado inicial del enemigo.
+     */
     protected override void Start()
     {
         base.Start();
-        // Neutralizamos la IA base (Steering Behaviors) para evitar conflictos
-        if (_senses != null) _senses.enabled = false;
-        if (_steeringBehaviors != null) _steeringBehaviors.enabled = false;
 
-        if (_spriteRenderer != null)
-        {
-            originalColor = _spriteRenderer.color;
-        }
+        if (_senses != null) _senses.enabled = false;           ///< Desactiva sensores si existen
+        if (_steeringBehaviors != null) _steeringBehaviors.enabled = false; ///< Desactiva steering
 
-        agent = GetComponent<NavMeshAgent>();
-        // Configuración NavMeshAgent 2D y "ligero" (Req B)
-        agent.updateRotation = false;
-        agent.updateUpAxis = false;
+        agent = GetComponent<NavMeshAgent>();                   ///< Obtiene NavMeshAgent
+        player = GameObject.FindGameObjectWithTag("Player")?.transform; ///< Obtiene jugador
+        if (_spriteRenderer != null) originalColor = _spriteRenderer.color; ///< Guarda color original
+
+        agent.updateRotation = false; ///< Evita rotación automática
+        agent.updateUpAxis = false;   ///< Evita ajuste eje Y
         agent.speed = agentSpeed;
         agent.acceleration = agentAcceleration;
-        agent.enabled = true; 
-        
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-        if (playerObj != null)
-        {
-            player = playerObj.transform;
-        }
 
-        // Inicia el ciclo principal
+        currentHP = 15; ///< Vida inicial
+
+        // Transición al estado inicial
         if (currentState == EnemyState.Active) TransitionToActive();
         else TransitionToTired();
     }
 
-    // --- UPDATE (MAQUINA DE ESTADOS) ---
-
-    void Update()
+    // ===============================
+    //            UPDATE
+    // ===============================
+    /**
+     * @brief Lógica por frame según estado del enemigo.
+     */
+    private void Update()
     {
-        // 🔴 ARREGLO Z: Fuerza el eje Z a 0 (Soluciona problemas de visibilidad por Z)
-        if (transform.position.z != FIXED_Z_POSITION)
+        if (player == null || currentHP <= 0)
         {
-            transform.position = new Vector3(transform.position.x, transform.position.y, FIXED_Z_POSITION);
-        }
-        
-        if (currentHP <= 0 || player == null)
-        {
-            if (agent.isOnNavMesh && agent.isActiveAndEnabled)
-            {
-                agent.isStopped = true;
-                agent.ResetPath();
-            }
-            return; 
+            StopAgent(); ///< Detiene movimiento si no hay jugador o está muerto
+            return;
         }
 
+        // Mantener Z fijo
+        if (transform.position.z != FIXED_Z_POSITION)
+            transform.position = new Vector3(transform.position.x, transform.position.y, FIXED_Z_POSITION);
+
+        // Reduce temporizador de disparo
         if (nextShootTime > 0)
-        {
             nextShootTime -= Time.deltaTime;
-        }
-        
+
+        // Lógica según estado
         switch (currentState)
         {
             case EnemyState.Active:
-                HandleActiveState(); 
+                HandleActiveState(); ///< Huida y disparo rápido
                 break;
             case EnemyState.Tired:
-                HandleTiredState(); 
+                HandleTiredState();  ///< Disparo lento solo
                 break;
         }
     }
-    
-    // --- LÓGICA DE ESTADO ACTIVO ---
-    
+
+    // ===============================
+    //        ESTADO ACTIVO
+    // ===============================
+    /**
+     * @brief Lógica del enemigo cuando está activo.
+     * Incluye huida, detección y disparo.
+     */
     private void HandleActiveState()
     {
-        bool hasLOS = CheckLOS();
-        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+        float distance = Vector3.Distance(transform.position, player.position); ///< Distancia al jugador
+        bool hasLOS = CheckLOS(); ///< Comprueba línea de visión
 
-        // 1. Huida (Flee) (Req B/C)
-        if (distanceToPlayer <= detectionRadius && !isFleeing)
+        if (distance <= detectionRadius && !isFleeing)
         {
-            isFleeing = true;
             if (TryFlee())
             {
-                // Req D (Activo): Inicia el temporizador de Cansancio SÓLO si se logra huir
+                isFleeing = true;
                 if (tirednessCoroutine != null) StopCoroutine(tirednessCoroutine);
-                tirednessCoroutine = StartCoroutine(TirednessTimer());
-            } 
-            else
-            {
-                isFleeing = false; 
+                tirednessCoroutine = StartCoroutine(TirednessTimer()); ///< Comienza cronómetro de cansancio
             }
         }
-        
-        // 2. Movimiento/Visión (Persecución y Stop)
+
+        // Control llegada a destino de huida
         if (isFleeing)
         {
-            agent.isStopped = false; 
-            if (!agent.pathPending && agent.remainingDistance < 0.1f)
+            if (!agent.pathPending && agent.remainingDistance < stoppingDistance)
             {
                 isFleeing = false;
                 agent.ResetPath();
@@ -165,228 +172,196 @@ public class NavMeshEscapistEnemy : BaseEnemy
         }
         else if (hasLOS)
         {
-            // Req A.1 (Activo): Si tiene LOS, detiene el movimiento.
-            if(agent.isOnNavMesh)
-            {
-                agent.isStopped = true;
-                agent.ResetPath();
-            }
+            StopAgent(); ///< Detiene si ve al jugador
             timeSinceLastSawPlayer = 0f;
         }
         else
         {
-            // Req F (Activo): Perseguir si pierde LOS por un tiempo.
-            agent.isStopped = false;
+            // Persigue si perdió visión
             timeSinceLastSawPlayer += Time.deltaTime;
-
             if (timeSinceLastSawPlayer >= timeWithoutLOSUntilSeek)
             {
-                // Req A (Activo): Asigna la posición del jugador como destino (Perseguir)
-                agent.SetDestination(player.position);
-                timeSinceLastSawPlayer = 0f; 
+                if (agent.isOnNavMesh)
+                    agent.SetDestination(player.position);
+                timeSinceLastSawPlayer = 0f;
             }
         }
 
-        // 3. Disparo (Req A)
-        TryShoot(player.position); 
+        // Disparo solo si hay línea de visión
+        if (hasLOS)
+            TryShoot(player.position);
     }
 
-    // --- LÓGICA DE ESTADO CANSADO ---
-    
+    // ===============================
+    //        ESTADO CANSADO
+    // ===============================
+    /**
+     * @brief Lógica del enemigo cuando está cansado.
+     * Solo dispara si ve al jugador, no huye.
+     */
     private void HandleTiredState()
     {
-        // Req C (Cansado): Únicamente dispara.
-        TryShoot(player.position);
+        if (CheckLOS())
+            TryShoot(player.position);
     }
 
-    // --- TRANSICIONES Y COROUTINES ---
-
+    // ===============================
+    //         TRANSICIONES
+    // ===============================
+    /**
+     * @brief Cambia enemigo a estado activo.
+     */
     private void TransitionToActive()
     {
         currentState = EnemyState.Active;
         isFleeing = false;
-        timeSinceLastSawPlayer = 0f;
-        
-        if (_spriteRenderer != null)
-        {
-            _spriteRenderer.color = originalColor;
-        }
-        // 🛑 Detener parpadeo azul
-        if (blinkCoroutine != null) StopCoroutine(blinkCoroutine);
 
-        // Req A (Activo): Asigna la posición del jugador
-        if (agent.isOnNavMesh)
-        {
-            agent.isStopped = false; 
-            if (player != null)
-            {
-                 agent.SetDestination(player.position);
-            }
-        }
-        if (activationCoroutine != null) StopCoroutine(activationCoroutine);
+        if (agent.isOnNavMesh && player != null)
+            agent.SetDestination(player.position);
+
+        if (_spriteRenderer != null) _spriteRenderer.color = originalColor;
+        if (blinkCoroutine != null) StopCoroutine(blinkCoroutine);
     }
 
+    /**
+     * @brief Cambia enemigo a estado cansado.
+     */
     private void TransitionToTired()
     {
-        // Req A (Cansado): Deja de moverse, se detiene
         currentState = EnemyState.Tired;
-        
-        if (agent.isOnNavMesh)
-        {
-            agent.isStopped = true;
-            agent.ResetPath();      
-        }
+        StopAgent();
 
-        // Req A (Cansado): Inicia el temporizador de Activación
         if (activationCoroutine != null) StopCoroutine(activationCoroutine);
         activationCoroutine = StartCoroutine(ActivationTimer());
-        
-        // 💡 Inicia el parpadeo azul (Req D Cansado)
+
         if (blinkCoroutine != null) StopCoroutine(blinkCoroutine);
         blinkCoroutine = StartCoroutine(TirednessBlink());
-
-        if (tirednessCoroutine != null) StopCoroutine(tirednessCoroutine);
     }
 
-    // Req A/B (Cansado): Temporizador de descanso
-    private IEnumerator ActivationTimer()
-    {
-        yield return new WaitForSeconds(activationDuration);
-        TransitionToActive();
-    }
-    
-    // Req E (Activo): Temporizador de actividad
+    // ===============================
+    //        COROUTINES DE TIEMPO
+    // ===============================
     private IEnumerator TirednessTimer()
     {
         yield return new WaitForSeconds(tirednessDuration);
         TransitionToTired();
     }
-    
-    // 💡 NUEVA COROUTINE: Parpadeo visual (Req D Cansado)
+
+    private IEnumerator ActivationTimer()
+    {
+        yield return new WaitForSeconds(activationDuration);
+        TransitionToActive();
+    }
+
     private IEnumerator TirednessBlink()
     {
         if (_spriteRenderer == null) yield break;
 
         while (currentState == EnemyState.Tired)
         {
-            _spriteRenderer.color = tiredBlinkColor; // Parpadea a Azul
+            _spriteRenderer.color = tiredBlinkColor;
             yield return new WaitForSeconds(blinkInterval);
-            _spriteRenderer.color = originalColor; // Vuelve al color original
+            _spriteRenderer.color = originalColor;
             yield return new WaitForSeconds(blinkInterval);
         }
     }
 
-    // --- LÓGICA DE HUÍDA ---
-
+    // ===============================
+    //        LÓGICA DE HUIDA
+    // ===============================
+    /**
+     * @brief Calcula dirección y destino de huida.
+     * @return true si pudo establecer un destino válido.
+     */
     private bool TryFlee()
     {
-        // Req C: Calcula la posición de huida (dirección opuesta al jugador)
-        Vector3 fleeDirection = (transform.position - player.position).normalized;
-        Vector3 targetPosition = transform.position + (fleeDirection * fleeDistance);
+        Vector3 fleeDir = (transform.position - player.position).normalized;
+        Vector3 targetPos = transform.position + (fleeDir * fleeDistance);
+        fleeDebugPosition = targetPos;
 
-        fleeDebugPosition = targetPosition; 
+        NavMeshHit hit;
+        int walkableMask = 1 << NavMesh.GetAreaFromName("Walkable"); ///< Solo zonas caminables
 
-        NavMeshHit navHit;
-        // 1. Muestra debug/gizmo (Req C.1) y busca un punto válido en la dirección de huida
-        if (NavMesh.SamplePosition(targetPosition, out navHit, fleeDistance * 0.5f, NavMesh.AllAreas))
+        if (NavMesh.SamplePosition(targetPos, out hit, fleeDistance * 0.5f, walkableMask))
         {
-            fleeDebugPosition = navHit.position;
+            fleeDebugPosition = hit.position;
             agent.SetDestination(fleeDebugPosition);
             return true;
         }
-        else
-        {
-            // Req C.2: Si no es válido, intenta en dirección opuesta (hacia el jugador)
-            targetPosition = transform.position - (fleeDirection * fleeDistance);
-            fleeDebugPosition = targetPosition; 
 
-            if (NavMesh.SamplePosition(targetPosition, out navHit, fleeDistance * 0.5f, NavMesh.AllAreas))
-            {
-                fleeDebugPosition = navHit.position;
-                agent.SetDestination(fleeDebugPosition);
-                return true;
-            }
+        targetPos = transform.position - (fleeDir * fleeDistance);
+        if (NavMesh.SamplePosition(targetPos, out hit, fleeDistance * 0.5f, walkableMask))
+        {
+            fleeDebugPosition = hit.position;
+            agent.SetDestination(fleeDebugPosition);
+            return true;
         }
-        
-        fleeDebugPosition = transform.position;
+
         return false;
     }
 
-
-    // --- ACCIONES DE COMBATE Y VISIÓN ---
-    
-    protected void TryShoot(Vector3 targetPos)
+    // ===============================
+    //       DISPARO Y VISIÓN
+    // ===============================
+    private void TryShoot(Vector3 targetPos)
     {
-        // 1. Apuntar y rotar (Req A)
-        Vector3 direction = (targetPos - transform.position).normalized;
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        Vector3 dir = (targetPos - transform.position).normalized;
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0, 0, angle);
 
-        // 2. Cooldown (Req D.Extra)
-        float currentCooldown = (currentState == EnemyState.Active) ? shootCooldownActive : shootCooldownTired;
+        float cooldown = (currentState == EnemyState.Active) ? shootCooldownActive : shootCooldownTired;
 
         if (nextShootTime <= 0)
         {
-            nextShootTime = currentCooldown;
-            Shoot(transform.rotation, direction); // Llamada a la función de disparo que aplica velocidad
+            nextShootTime = cooldown;
+            Shoot(transform.rotation, dir);
         }
     }
-    
+
+    /**
+     * @brief Comprueba si hay línea de visión hacia el jugador.
+     * @return true si no hay obstáculos entre enemigo y jugador
+     */
     private bool CheckLOS()
     {
-        if (player == null) return false;
+        Vector3 dir = (player.position - transform.position).normalized;
+        float dist = Vector3.Distance(transform.position, player.position);
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, dist, lineOfSightMask);
 
-        Vector3 direction = (player.position - transform.position).normalized;
-        float distance = Vector3.Distance(transform.position, player.position);
-
-        // Raycast para verificar si hay obstáculos
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, distance, lineOfSightMask);
-
-        // Debug Gizmo (Req: "debug/gizmo del raycast")
-        Color rayColor = (hit.collider == null) ? Color.green : Color.red;
-        Debug.DrawRay(transform.position, direction * distance, rayColor);
-
+        Debug.DrawRay(transform.position, dir * dist, hit.collider == null ? Color.green : Color.red);
         return hit.collider == null;
     }
-    
-    // 🎯 ARREGLO DE DISPARO: Se hace público para ser llamado desde TryShoot con la dirección.
-    protected void Shoot(Quaternion rotation, Vector3 direction)
+
+    protected void Shoot(Quaternion rotation, Vector3 dir)
     {
-        if (bulletPrefab != null && shootPoint != null)
+        if (!bulletPrefab || !shootPoint) return;
+
+        GameObject bullet = Instantiate(bulletPrefab, shootPoint.position, rotation);
+        Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
+        if (rb)
+            rb.linearVelocity = dir * bulletSpeed;
+    }
+
+    // ===============================
+    //        CONTROL DE AGENTE
+    // ===============================
+    private void StopAgent()
+    {
+        if (agent.isOnNavMesh)
         {
-             GameObject newBullet = Instantiate(bulletPrefab, shootPoint.position, rotation);
-             
-             // 🎯 ARREGLO DE BALAS FLOTANTES: Aplicar velocidad al Rigidbody2D de la bala.
-             Rigidbody2D rb2d = newBullet.GetComponent<Rigidbody2D>();
-             if (rb2d != null)
-             {
-                 rb2d.linearVelocity = direction * bulletSpeed; 
-             }
-             // Si tu bala usa un script Bullet.cs, esa script debe estar moviendo su Transform/Rigidbody.
+            agent.isStopped = true;
+            agent.ResetPath();
         }
     }
 
-    // Sobrescribe el método base que no usaremos.
-    protected void Shoot() 
-    {
-        // No hace nada.
-    }
-
-    // Sobrescribe la colisión de BaseEnemy para no hacer daño por contacto.
-    private void OnCollisionStay2D(Collision2D collision)
-    {
-        // No hace daño por contacto.
-    }
-
-    // --- DEBUG GIZMOS ---
-    
+    // ===============================
+    //           GIZMOS
+    // ===============================
     private void OnDrawGizmosSelected()
     {
-        // Dibuja el radio de detección (Req B)
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
 
-        // Dibuja la posición de huida (Req C.1)
         if (Application.isPlaying && isFleeing)
         {
             Gizmos.color = Color.cyan;
