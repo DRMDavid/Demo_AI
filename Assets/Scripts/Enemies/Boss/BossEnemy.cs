@@ -3,7 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.AI; 
+using NavMeshPlus.Extensions; // 👈 NECESARIO para AgentOverride2d
 
+// ✅ SOLUCIÓN 1: Añadimos los RequireComponent que tiene el Escapista
+[RequireComponent(typeof(NavMeshAgent))]
+[RequireComponent(typeof(AgentOverride2d))] // 👈 CRÍTICO: Conecta el agente 3D al mundo 2D
 public class BossEnemy : BaseEnemy 
 {
     // --- CONFIGURACIÓN DE NAVMESH Y MOVIMIENTO ---
@@ -49,17 +53,22 @@ public class BossEnemy : BaseEnemy
     private Transform _playerTarget;        
     private float _lastAttackTime = 0f;
     private Rigidbody2D _rb;
-    private int _playerLayerMask; // Máscara de capa para detección
+    private int _playerLayerMask; 
+
+    // ✅ SOLUCIÓN 2: Posición Z fija (igual que el Escapista)
+    private const float FIXED_Z_POSITION = 0f;
 
     // --- Inicialización ---
     protected override void Start()
     {
-        // 1. Inicialización de BaseEnemy (Salud, Senses)
-        currentHP = maxHP;                            
-        _senses = GetComponent<Senses>();
+        // 1. Llama a BaseEnemy.Start() para inicializar HP y Senses
+        base.Start();
+        
+        // ✅ SOLUCIÓN 3: Desactivar componentes heredados que no usamos (igual que el Escapista)
+        if (_senses != null) _senses.enabled = false;
+        if (_steeringBehaviors != null) _steeringBehaviors.enabled = false;
+        
         _rb = GetComponent<Rigidbody2D>(); 
-
-        // 2. Inicialización de NavMesh
         _navAgent = GetComponent<NavMeshAgent>();
         
         if (_navAgent == null)
@@ -67,43 +76,45 @@ public class BossEnemy : BaseEnemy
         
         if (_navAgent != null)
         {
+            // ✅ SOLUCIÓN 4: Forzar el agente a 2D (igual que el Escapista)
             _navAgent.updateRotation = false; 
             _navAgent.updateUpAxis = false;   
             _navAgent.speed = agentSpeed;
             _navAgent.stoppingDistance = agentStoppingDistance;
         }
 
-        // 3. Buscar Target y Layers
+        // 3. Buscar Target (Tag) y Layers
         GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
         if (playerObject != null)
             _playerTarget = playerObject.transform;
         else
             Debug.LogError("¡Jugador no encontrado! Asegúrate de que tenga la Tag 'Player'.");
 
-        // Asume que tienes una capa llamada "Player" para las colisiones de daño
         _playerLayerMask = 1 << LayerMask.NameToLayer("Player"); 
 
         StartCoroutine(BossAILoop());
     }
 
-    // --- UPDATE: Mantiene el movimiento de Seek y NO SPAMEA la consola ---
+    // --- UPDATE: Mantiene el movimiento y FUERZA LA POSICIÓN Z ---
     void Update()
     {
-        // Si estamos en IdleMove, el NavMeshAgent se mueve
+        // ✅ SOLUCIÓN 5: Forzar el Z a 0 en cada frame (igual que el Escapista)
+        if (transform.position.z != FIXED_Z_POSITION)
+            transform.position = new Vector3(transform.position.x, transform.position.y, FIXED_Z_POSITION);
+
         if (_navAgent != null && _playerTarget != null && _currentBossState == EBossState.IdleMove)
         {
             _navAgent.isStopped = false;
             _navAgent.speed = agentSpeed;
             _navAgent.SetDestination(_playerTarget.position);
         }
-        // Se elimina el Debug.Log del Update para evitar el spam de consola
     }
 
     // --- CICLO PRINCIPAL DE LA FSM (Loguea al cambiar de estado) ---
     IEnumerator BossAILoop()
     {
         if (_playerTarget == null) yield break;
-        EBossState previousState = EBossState.IdleMove;
+        EBossState previousState = EBossState.IdleMove; 
 
         while (currentHP > 0)
         {
@@ -111,10 +122,8 @@ public class BossEnemy : BaseEnemy
             
             if (newState != _currentBossState)
             {
-                // ✅ FIX: Loguea SOLO cuando el estado cambia
                 Debug.Log($"FSM CHANGE: {previousState} -> {newState}"); 
                 previousState = newState;
-                
                 _navAgent.isStopped = true; 
                 _currentBossState = newState;
             }
@@ -137,14 +146,52 @@ public class BossEnemy : BaseEnemy
             }
             yield return null; 
         }
-        // FIX: Reemplaza la llamada a Die() privada con Destroy()
         Destroy(gameObject, 0.2f); 
         yield break;
     }
 
-    // --- LÓGICA DE FLUJO Y ATAQUE ---
+    // --- (El resto del código: DetermineNextMainState, HandleMeleeState, HandleRangedState, etc...) ---
+    // --- (Estos métodos no necesitan cambios, ya que el problema es de visibilidad) ---
+
+    #region Métodos de Utilidad (Ataque y Matemáticas)
+
+    EBossState DetermineNextMainState()
+    {
+        if (_playerTarget == null) return EBossState.IdleMove;
+        float distance = Vector3.Distance(transform.position, _playerTarget.position);
+        
+        if (currentHP <= maxHP * ultimateHPThreshold)
+            return EBossState.Ultimate;
+        if (distance <= meleeRange)
+            return EBossState.Melee;
+        if (distance <= rangedRange)
+            return EBossState.Ranged;
+
+        return EBossState.IdleMove;
+    }
     
-    // Ejecuta el Selector de Ataque y espera su duración
+    IEnumerator HandleMeleeState()
+    {
+        _navAgent.isStopped = true;
+        if (Time.time > _lastAttackTime + attackCooldown)
+        {
+            _lastAttackTime = Time.time;
+            yield return StartCoroutine(ExecuteAttack(_currentBossState));
+        }
+        yield break;
+    }
+
+    IEnumerator HandleRangedState()
+    {
+        _navAgent.isStopped = true;
+        if (Time.time > _lastAttackTime + attackCooldown)
+        {
+            _lastAttackTime = Time.time;
+            yield return StartCoroutine(ExecuteAttack(_currentBossState));
+        }
+        yield break;
+    }
+
     IEnumerator ExecuteAttack(EBossState attackSource)
     {
         EBossAttackType attackType = _nextAttackIndex;
@@ -167,9 +214,28 @@ public class BossEnemy : BaseEnemy
         yield break;
     }
 
-    // --- COROUTINES DE ACCIÓN (Simulan el ataque sin animaciones) ---
+    float GetMeleeAttackDuration(EBossAttackType type)
+    {
+        switch (type)
+        {
+            case EBossAttackType.BasicAttack: return 0.3f;
+            case EBossAttackType.SpecialAttack1: return 1.0f; 
+            case EBossAttackType.SpecialAttack2: return 0.8f; 
+            default: return 0.5f;
+        }
+    }
     
-    // Ataques Melee (Verifica daño por proximidad)
+    float GetRangedAttackDuration(EBossAttackType type)
+    {
+        switch (type)
+        {
+            case EBossAttackType.BasicAttack: return 0.4f; 
+            case EBossAttackType.SpecialAttack1: return 0.8f; 
+            case EBossAttackType.SpecialAttack2: return 1.2f; 
+            default: return 0.5f;
+        }
+    }
+
     IEnumerator PerformMeleeAttackSequence(EBossAttackType type)
     {
         if (_playerTarget == null) yield break;
@@ -177,10 +243,9 @@ public class BossEnemy : BaseEnemy
         switch (type)
         {
             case EBossAttackType.BasicAttack: 
-                Debug.Log("VERIFIED: MELEE - Ataque Básico (Golpe a corta distancia).");
-                // ✅ Lógica de Ataque Básico: Si el jugador está MUY cerca, aplica daño
+                Debug.Log("VERIFIED: MELEE - Ataque Básico (Daño de contacto).");
                 if (Vector3.Distance(transform.position, _playerTarget.position) < agentStoppingDistance + 0.1f)
-                    DamagePlayer(_playerTarget.GetComponent<PlayerSalud>(), damageToPlayer * 2); 
+                    DamagePlayer(_playerTarget.GetComponent<PlayerSalud>(), damageToPlayer * 2);
                 yield return null; 
                 break;
             case EBossAttackType.SpecialAttack1: 
@@ -190,7 +255,7 @@ public class BossEnemy : BaseEnemy
                 yield return null;
                 break;
             case EBossAttackType.SpecialAttack2: 
-                Debug.Log("VERIFIED: MELEE - Ataque Especial 2 (DASH ejecutado con Rigidbody).");
+                Debug.Log("VERIFIED: MELEE - Ataque Especial 2 (DASH ejecutado).");
                 if (_rb != null)
                 {
                     Vector3 dashDir = (_playerTarget.position - transform.position).normalized;
@@ -203,7 +268,6 @@ public class BossEnemy : BaseEnemy
         yield break;
     }
     
-    // Ataques Ranged (Disparo)
     IEnumerator PerformRangedAttackSequence(EBossAttackType type)
     {
         if (_playerTarget == null || firePoint == null) yield break;
@@ -236,17 +300,17 @@ public class BossEnemy : BaseEnemy
         bool isMeleePhase = distance <= meleeRange; 
         
         float chargeTime = 2.0f;
-        Debug.Log($"ULTIMATE: Cargando por {chargeTime}s. Ejecutará Ultimate {(isMeleePhase ? "MELEE (Nova)" : "RANGED (Barrage)")}");
+        Debug.Log($"ULTIMATE: Cargando {chargeTime}s. Ejecutará Ultimate {(isMeleePhase ? "MELEE (Nova)" : "RANGED (Barrage)")}");
         yield return new WaitForSeconds(chargeTime);
 
         if (isMeleePhase)
         {
-            Debug.Log("ULTIMATE: NOVA DE CONTACTO ejecutada. Daño AoE + Empuje.");
+            Debug.Log("ULTIMATE: NOVA DE CONTACTO ejecutada.");
             ApplyRadialDamage(10f, maxHP); 
         }
         else 
         {
-            Debug.Log("ULTIMATE: BARRAGE CAÓTICO ejecutado. Disparos 360.");
+            Debug.Log("ULTIMATE: BARRAGE CAÓTICO ejecutado.");
             StartCoroutine(FireWideBurst(true)); 
         }
         
@@ -255,8 +319,6 @@ public class BossEnemy : BaseEnemy
         yield break; 
     }
     
-    // --- UTILIDADES (Lógica de Daño y Matemáticas) ---
-
     private void DamagePlayer(PlayerSalud playerSalud, int damage)
     {
         if (playerSalud != null)
@@ -268,9 +330,7 @@ public class BossEnemy : BaseEnemy
 
     private void ApplyRadialDamage(float radius, int damage)
     {
-        // Usa la máscara del jugador para la detección de capas
         Collider2D[] hitObjects = Physics2D.OverlapCircleAll(transform.position, radius, _playerLayerMask);
-
         foreach (Collider2D hit in hitObjects)
         {
             if (hit.gameObject.CompareTag("Player")) 
@@ -298,7 +358,6 @@ public class BossEnemy : BaseEnemy
         }
     }
     
-    // Coroutine de Tiro Triple
     IEnumerator FireTripleShot(Vector2 targetDir)
     {
         float angleOffset = 25f; 
@@ -312,7 +371,6 @@ public class BossEnemy : BaseEnemy
         yield break;
     }
     
-    // Coroutine de Ráfaga Circular
     IEnumerator FireWideBurst(bool isUltimate = false)
     {
         int count = isUltimate ? rangedBurstCount * 4 : rangedBurstCount; 
@@ -328,7 +386,6 @@ public class BossEnemy : BaseEnemy
         yield break;
     }
 
-    // Método RotateVector2 (utilidad matemática)
     private Vector2 RotateVector2(Vector2 v, float degrees)
     {
         float radians = degrees * Mathf.Deg2Rad;
@@ -341,7 +398,6 @@ public class BossEnemy : BaseEnemy
         );
     }
     
-    // --- VISUALIZACIÓN DE GIZMOS EN EL EDITOR ---
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = new Color(0, 0.5f, 1f, 0.5f); 
@@ -353,4 +409,6 @@ public class BossEnemy : BaseEnemy
         Gizmos.color = Color.magenta; 
         Gizmos.DrawWireSphere(transform.position, meleeRange + (rangedRange - meleeRange) * ultimateHPThreshold);
     }
+
+    #endregion
 }
