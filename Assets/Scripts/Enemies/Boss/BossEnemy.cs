@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.AI; 
-// Nota: Se asume que PlayerSalud existe en tu proyecto (como en el original)
 
 public class BossEnemy : BaseEnemy 
 {
@@ -50,7 +49,7 @@ public class BossEnemy : BaseEnemy
     private Transform _playerTarget;        
     private float _lastAttackTime = 0f;
     private Rigidbody2D _rb;
-    private int _playerLayerMask; // Máscara de capa para detectar al jugador en OverlapCircle
+    private int _playerLayerMask; // Máscara de capa para detección
 
     // --- Inicialización ---
     protected override void Start()
@@ -59,58 +58,63 @@ public class BossEnemy : BaseEnemy
         currentHP = maxHP;                            
         _senses = GetComponent<Senses>();
         _rb = GetComponent<Rigidbody2D>(); 
-        
+
         // 2. Inicialización de NavMesh
         _navAgent = GetComponent<NavMeshAgent>();
         
         if (_navAgent == null)
-            Debug.LogError("NavMeshAgent no encontrado. ¡Agregue el componente NavMeshAgent al jefe!");
+            Debug.LogError("NavMeshAgent no encontrado. ¡Agregue el componente NavMeshAgent!");
         
         if (_navAgent != null)
         {
-            _navAgent.updateRotation = false; // Mantiene el sprite en 2D
+            _navAgent.updateRotation = false; 
             _navAgent.updateUpAxis = false;   
             _navAgent.speed = agentSpeed;
             _navAgent.stoppingDistance = agentStoppingDistance;
         }
 
-        // 3. Buscar el jugador y Layers (Uso de Tags y Layers)
+        // 3. Buscar Target y Layers
         GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
         if (playerObject != null)
             _playerTarget = playerObject.transform;
+        else
+            Debug.LogError("¡Jugador no encontrado! Asegúrate de que tenga la Tag 'Player'.");
 
-        // Asume que tienes una capa llamada "Player"
+        // Asume que tienes una capa llamada "Player" para las colisiones de daño
         _playerLayerMask = 1 << LayerMask.NameToLayer("Player"); 
 
         StartCoroutine(BossAILoop());
     }
 
-    // --- UPDATE: Mantiene el movimiento de Seek y loguea el estado ---
+    // --- UPDATE: Mantiene el movimiento de Seek y NO SPAMEA la consola ---
     void Update()
     {
-        if (_navAgent != null && _playerTarget != null)
+        // Si estamos en IdleMove, el NavMeshAgent se mueve
+        if (_navAgent != null && _playerTarget != null && _currentBossState == EBossState.IdleMove)
         {
-            Debug.Log($"ESTADO ACTUAL: {_currentBossState}");
-            
-            if (_currentBossState == EBossState.IdleMove)
-            {
-                _navAgent.isStopped = false;
-                _navAgent.speed = agentSpeed;
-                _navAgent.SetDestination(_playerTarget.position);
-            }
+            _navAgent.isStopped = false;
+            _navAgent.speed = agentSpeed;
+            _navAgent.SetDestination(_playerTarget.position);
         }
+        // Se elimina el Debug.Log del Update para evitar el spam de consola
     }
 
-    // --- CICLO PRINCIPAL DE LA FSM (Nivel Superior) ---
+    // --- CICLO PRINCIPAL DE LA FSM (Loguea al cambiar de estado) ---
     IEnumerator BossAILoop()
     {
         if (_playerTarget == null) yield break;
+        EBossState previousState = EBossState.IdleMove;
 
         while (currentHP > 0)
         {
             EBossState newState = DetermineNextMainState();
+            
             if (newState != _currentBossState)
             {
+                // ✅ FIX: Loguea SOLO cuando el estado cambia
+                Debug.Log($"FSM CHANGE: {previousState} -> {newState}"); 
+                previousState = newState;
+                
                 _navAgent.isStopped = true; 
                 _currentBossState = newState;
             }
@@ -133,49 +137,14 @@ public class BossEnemy : BaseEnemy
             }
             yield return null; 
         }
-        // Llamada al método de destrucción (similar a BaseEnemy.Die())
+        // FIX: Reemplaza la llamada a Die() privada con Destroy()
         Destroy(gameObject, 0.2f); 
         yield break;
     }
 
-    EBossState DetermineNextMainState()
-    {
-        if (_playerTarget == null) return EBossState.IdleMove;
-        float distance = Vector3.Distance(transform.position, _playerTarget.position);
-        
-        if (currentHP <= maxHP * ultimateHPThreshold)
-            return EBossState.Ultimate;
-        if (distance <= meleeRange)
-            return EBossState.Melee;
-        if (distance <= rangedRange)
-            return EBossState.Ranged;
-
-        return EBossState.IdleMove;
-    }
+    // --- LÓGICA DE FLUJO Y ATAQUE ---
     
-    IEnumerator HandleMeleeState()
-    {
-        _navAgent.isStopped = true;
-        if (Time.time > _lastAttackTime + attackCooldown)
-        {
-            _lastAttackTime = Time.time;
-            yield return StartCoroutine(ExecuteAttack(_currentBossState));
-        }
-        yield break;
-    }
-
-    IEnumerator HandleRangedState()
-    {
-        _navAgent.isStopped = true;
-        if (Time.time > _lastAttackTime + attackCooldown)
-        {
-            _lastAttackTime = Time.time;
-            yield return StartCoroutine(ExecuteAttack(_currentBossState));
-        }
-        yield break;
-    }
-
-    // --- EJECUTOR DE ATAQUE (SELECTOR Y ESPERA) ---
+    // Ejecuta el Selector de Ataque y espera su duración
     IEnumerator ExecuteAttack(EBossState attackSource)
     {
         EBossAttackType attackType = _nextAttackIndex;
@@ -198,30 +167,9 @@ public class BossEnemy : BaseEnemy
         yield break;
     }
 
-    // --- FUNCIONES DE DURACIÓN ---
-    float GetMeleeAttackDuration(EBossAttackType type)
-    {
-        switch (type)
-        {
-            case EBossAttackType.BasicAttack: return 0.3f;
-            case EBossAttackType.SpecialAttack1: return 1.0f; 
-            case EBossAttackType.SpecialAttack2: return 0.8f; 
-            default: return 0.5f;
-        }
-    }
+    // --- COROUTINES DE ACCIÓN (Simulan el ataque sin animaciones) ---
     
-    float GetRangedAttackDuration(EBossAttackType type)
-    {
-        switch (type)
-        {
-            case EBossAttackType.BasicAttack: return 0.4f; 
-            case EBossAttackType.SpecialAttack1: return 0.8f; 
-            case EBossAttackType.SpecialAttack2: return 1.2f; 
-            default: return 0.5f;
-        }
-    }
-
-    // --- COROUTINES DE ACCIÓN (Simulan el ataque) ---
+    // Ataques Melee (Verifica daño por proximidad)
     IEnumerator PerformMeleeAttackSequence(EBossAttackType type)
     {
         if (_playerTarget == null) yield break;
@@ -230,9 +178,9 @@ public class BossEnemy : BaseEnemy
         {
             case EBossAttackType.BasicAttack: 
                 Debug.Log("VERIFIED: MELEE - Ataque Básico (Golpe a corta distancia).");
-                // ✅ Ataque de contacto: Si el jugador está muy cerca, aplica daño
+                // ✅ Lógica de Ataque Básico: Si el jugador está MUY cerca, aplica daño
                 if (Vector3.Distance(transform.position, _playerTarget.position) < agentStoppingDistance + 0.1f)
-                    DamagePlayer(_playerTarget.GetComponent<PlayerSalud>(), damageToPlayer * 2);
+                    DamagePlayer(_playerTarget.GetComponent<PlayerSalud>(), damageToPlayer * 2); 
                 yield return null; 
                 break;
             case EBossAttackType.SpecialAttack1: 
@@ -255,6 +203,7 @@ public class BossEnemy : BaseEnemy
         yield break;
     }
     
+    // Ataques Ranged (Disparo)
     IEnumerator PerformRangedAttackSequence(EBossAttackType type)
     {
         if (_playerTarget == null || firePoint == null) yield break;
@@ -287,7 +236,7 @@ public class BossEnemy : BaseEnemy
         bool isMeleePhase = distance <= meleeRange; 
         
         float chargeTime = 2.0f;
-        Debug.Log($"ULTIMATE: Cargando {chargeTime}s. Ejecutará Ultimate {(isMeleePhase ? "MELEE (Nova)" : "RANGED (Barrage)")}");
+        Debug.Log($"ULTIMATE: Cargando por {chargeTime}s. Ejecutará Ultimate {(isMeleePhase ? "MELEE (Nova)" : "RANGED (Barrage)")}");
         yield return new WaitForSeconds(chargeTime);
 
         if (isMeleePhase)
@@ -306,22 +255,20 @@ public class BossEnemy : BaseEnemy
         yield break; 
     }
     
-    // --- MÉTODOS DE UTILIDAD (Solucionan errores de símbolo) ---
+    // --- UTILIDADES (Lógica de Daño y Matemáticas) ---
 
-    // Define un método para aplicar daño (asume que el jugador tiene PlayerSalud.cs)
     private void DamagePlayer(PlayerSalud playerSalud, int damage)
     {
         if (playerSalud != null)
         {
-            // playerSalud.RecibirDamage(damage); // Usar esta línea en la implementación final
+            playerSalud.RecibirDamage(damage); 
         }
         Debug.Log($"DAÑO: Infligido {damage} al jugador.");
     }
 
-    // Aplica daño en un radio, usando Layers y Tags para mayor precisión
     private void ApplyRadialDamage(float radius, int damage)
     {
-        // Physics2D.OverlapCircleAll() para detectar colisiones en el radio
+        // Usa la máscara del jugador para la detección de capas
         Collider2D[] hitObjects = Physics2D.OverlapCircleAll(transform.position, radius, _playerLayerMask);
 
         foreach (Collider2D hit in hitObjects)
@@ -335,13 +282,19 @@ public class BossEnemy : BaseEnemy
         Debug.Log($"DAÑO RADIAL: Daño {damage} aplicado en radio {radius}.");
     }
     
-    // Lógica para instanciar proyectiles (simulada)
     void FireBullet(Vector2 direction, float speed)
     {
         if (bulletPrefab != null && firePoint != null)
         {
-            Debug.Log($"DISPARO: Proyectil creado con dirección {direction} y velocidad {speed}.");
-            // Lógica real: GameObject bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
+            GameObject bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
+
+            Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
+            if (rb != null)
+            {
+                rb.linearVelocity = direction * speed;
+            } else {
+                Debug.LogError("El prefab de la bala no tiene Rigidbody2D. ¡El disparo falló!");
+            }
         }
     }
     
@@ -349,16 +302,14 @@ public class BossEnemy : BaseEnemy
     IEnumerator FireTripleShot(Vector2 targetDir)
     {
         float angleOffset = 25f; 
-        
         FireBullet(targetDir, bulletSpeed);
         yield return new WaitForSeconds(0.2f);
-        
         Vector2 dir1 = RotateVector2(targetDir, angleOffset);
         Vector2 dir2 = RotateVector2(targetDir, -angleOffset);
-        
         FireBullet(dir1, bulletSpeed);
         yield return new WaitForSeconds(0.2f);
         FireBullet(dir2, bulletSpeed);
+        yield break;
     }
     
     // Coroutine de Ráfaga Circular
@@ -371,9 +322,7 @@ public class BossEnemy : BaseEnemy
         {
             float angle = Random.Range(0f, 360f); 
             Vector2 randomDir = RotateVector2(Vector2.right, angle); 
-            
             FireBullet(randomDir, bulletSpeed * (isUltimate ? 1.5f : 0.8f)); 
-            
             yield return new WaitForSeconds(delay); 
         }
         yield break;
@@ -395,21 +344,12 @@ public class BossEnemy : BaseEnemy
     // --- VISUALIZACIÓN DE GIZMOS EN EL EDITOR ---
     private void OnDrawGizmosSelected()
     {
-        // Se dibuja solo si se selecciona el objeto
-        
-        // 1. Rango de Ataque Lejano (RANGED STATE)
         Gizmos.color = new Color(0, 0.5f, 1f, 0.5f); 
         Gizmos.DrawWireSphere(transform.position, rangedRange);
-
-        // 2. Rango de Ataque Cuerpo a Cuerpo (MELEE STATE)
         Gizmos.color = new Color(1f, 0, 0, 0.6f); 
         Gizmos.DrawWireSphere(transform.position, meleeRange);
-
-        // 3. Rango del Ataque de Área (MELEE Special 1)
         Gizmos.color = new Color(1f, 0.5f, 0, 0.8f); 
         Gizmos.DrawWireSphere(transform.position, aoeRadius);
-        
-        // 4. Umbral de Ultimate (Visualiza una distancia proporcional al umbral de vida)
         Gizmos.color = Color.magenta; 
         Gizmos.DrawWireSphere(transform.position, meleeRange + (rangedRange - meleeRange) * ultimateHPThreshold);
     }
