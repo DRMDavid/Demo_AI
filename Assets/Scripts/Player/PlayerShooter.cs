@@ -1,35 +1,29 @@
 /*******************************************************
  * NOMBRE DEL ARCHIVO: PlayerShooter.cs
  * AUTOR: Gael, David, Steve
- * 
- * BASADO EN:
- *   Curso "Aprende a crear un videojuego de Acción 2D con Unity"
- *   Instructor: Gianny Dantas (Udemy)
- *   Fuente: https://www.udemy.com/course/aprende-a-crear-un-videojuego-de-accion-2d-con-unity/
- * 
- * DESCRIPCIÓN:
+ * * BASADO EN:
+ * Curso "Aprende a crear un videojuego de Acción 2D con Unity"
+ * Instructor: Gianny Dantas (Udemy)
+ * Fuente: https://www.udemy.com/course/aprende-a-crear-un-videojuego-de-accion-2d-con-unity/
+ * * DESCRIPCIÓN:
  * Script completamente original, basado en la mecánica de disparo
  * del curso mencionado, pero reescrito desde cero.
- * 
- * Se encarga de:
- *  - Crear e instanciar proyectiles hacia el cursor.
- *  - Controlar la cadencia de disparo (fire rate).
- *  - Rotar el arma hacia la posición del mouse.
- *  - Reproducir sonido de disparo mediante un AudioSource.
- * 
- * DIFERENCIAS RESPECTO AL CURSO:
- *  - No utiliza ScriptableObjects ni clases separadas (Item, Weapon, ArmaPistola).
- *  - Integra toda la lógica en un solo script.
- *  - Implementa un sistema de sonido propio.
- *  - Mejora la verificación de referencias y control de errores.
- * 
- * FUENTES CONSULTADAS:
- *  - Curso de Udemy (Gianny Dantas)
- *  - Documentación oficial de Unity:
- *    https://docs.unity3d.com/ScriptReference/AudioSource.PlayOneShot.html
- *    https://docs.unity3d.com/ScriptReference/Input.GetMouseButton.html
- * 
- * FECHA: 05/10
+ * * Se encarga de:
+ * - Crear e instanciar proyectiles hacia el cursor.
+ * - Controlar la cadencia de disparo (fire rate).
+ * - Rotar el arma hacia la posición del mouse.
+ * - Reproducir sonido de disparo mediante un AudioSource.
+ * * DIFERENCIAS RESPECTO AL CURSO:
+ * - No utiliza ScriptableObjects ni clases separadas (Item, Weapon, ArmaPistola).
+ * - Integra toda la lógica en un solo script.
+ * - Implementa un sistema de sonido propio.
+ * - Mejora la verificación de referencias y control de errores.
+ * * FUENTES CONSULTADAS:
+ * - Curso de Udemy (Gianny Dantas)
+ * - Documentación oficial de Unity:
+ * https://docs.unity3d.com/ScriptReference/AudioSource.PlayOneShot.html
+ * https://docs.unity3d.com/ScriptReference/Input.GetMouseButton.html
+ * * FECHA: 05/10
  *******************************************************/
 
 using UnityEngine;
@@ -43,6 +37,11 @@ public class PlayerShooter : MonoBehaviour
     public float proyectilSpeed = 12f;        // Velocidad de la bala.
     public float fireRate = 0.25f;            // Tiempo mínimo entre disparos.
 
+    [Header("Colores del Proyectil 🎨")]
+    // 💡 Variables nuevas para feedback visual del Power-Up
+    public Color colorNormal = Color.white;      // Color estándar.
+    public Color colorPerforante = Color.red;    // Color al tener balas perforantes.
+
     [Header("Referencias Visuales")]
     public Transform armaSprite;              // Sprite del arma, rota hacia el cursor.
 
@@ -52,6 +51,10 @@ public class PlayerShooter : MonoBehaviour
     // --- Variables Privadas ---
     private float lastFireTime;               // Control de tiempo entre disparos.
     private AudioSource audioSource;          // Fuente de audio para reproducir el sonido.
+
+    // --- 💡 Variables para Power-Ups (NUEVO) ---
+    private bool tieneEscopeta = false;
+    private int nivelPerforacion = 0;
 
     private void Awake()
     {
@@ -93,23 +96,57 @@ public class PlayerShooter : MonoBehaviour
         mouseWorld.z = 0f;
         Vector2 dir = (mouseWorld - firePoint.position).normalized;
 
-        // Instancia la bala.
-        GameObject go = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
-        PlayerBullet bullet = go.GetComponent<PlayerBullet>();
-
-        if (bullet != null)
+        // 💡 LÓGICA MODIFICADA: Escopeta vs Disparo Normal
+        if (tieneEscopeta)
         {
-            bullet.Init(dir, proyectilSpeed, proyectilDamage);
+            // Dispara 3 balas en abanico
+            CrearBala(dir, 0f);   // Centro
+            CrearBala(dir, 15f);  // Derecha (+15 grados)
+            CrearBala(dir, -15f); // Izquierda (-15 grados)
         }
         else
         {
-            Debug.LogError("El prefab de la bala NO tiene el script PlayerBullet!");
+            // Disparo único normal
+            CrearBala(dir, 0f);
         }
 
         // Reproduce el sonido del disparo sin interrumpir otros sonidos.
         if (shootSound != null)
         {
             audioSource.PlayOneShot(shootSound);
+        }
+    }
+
+    /// <summary>
+    /// 💡 NUEVO: Método auxiliar para instanciar la bala con rotación y configuración.
+    /// </summary>
+    private void CrearBala(Vector2 direccionBase, float anguloExtra)
+    {
+        // Rota el vector de dirección original según el ángulo extra
+        Vector2 dirFinal = Quaternion.Euler(0, 0, anguloExtra) * direccionBase;
+
+        // Instancia la bala.
+        GameObject go = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
+        PlayerBullet bullet = go.GetComponent<PlayerBullet>();
+
+        if (bullet != null)
+        {
+            bullet.Init(dirFinal, proyectilSpeed, proyectilDamage);
+            bullet.SetPerforaciones(nivelPerforacion); // Aplica la perforación actual
+
+            // 💡 CAMBIO DE COLOR: Feedback visual si es perforante
+            if (nivelPerforacion > 0)
+            {
+                bullet.SetColor(colorPerforante);
+            }
+            else
+            {
+                bullet.SetColor(colorNormal);
+            }
+        }
+        else
+        {
+            Debug.LogError("El prefab de la bala NO tiene el script PlayerBullet!");
         }
     }
 
@@ -146,5 +183,24 @@ public class PlayerShooter : MonoBehaviour
                 Gizmos.DrawLine(firePoint.position, mouseWorld);
             }
         }
+    }
+
+    // --- MÉTODOS PÚBLICOS PARA POWER-UPS ---
+
+    public void ModificarFireRate(float nuevoValor)
+    {
+        fireRate = nuevoValor;
+    }
+
+    // Activa o desactiva el modo escopeta
+    public void ActivarEscopeta(bool estado)
+    {
+        tieneEscopeta = estado;
+    }
+
+    // Configura cuántos enemigos pueden atravesar las balas
+    public void SetPerforacion(int cantidad)
+    {
+        nivelPerforacion = cantidad;
     }
 }

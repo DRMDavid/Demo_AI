@@ -197,4 +197,9 @@ public class PlayerMovimiento : MonoBehaviour
         yield return new WaitForSeconds(2f);
         puedeRegenerar = true;
     }
+    
+    public void ModificarCostoDash(float nuevoCosto)
+    {
+        costoDash = nuevoCosto;
+    }
 }

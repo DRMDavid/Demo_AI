@@ -2,24 +2,21 @@
  * NOMBRE DEL ARCHIVO: PlayerBullet.cs
  * AUTOR: Gael, Steve y David
  * CURSO: Desarrollo de videojuego de Acción 2D con Unity
- * 
- * DESCRIPCIÓN:
+ * * DESCRIPCIÓN:
  * Script encargado del comportamiento de las balas del jugador.
  * Controla su movimiento, daño y destrucción al impactar con enemigos
  * o con paredes. Este script se asocia al prefab de la bala.
- * 
- * FUENTES CONSULTADAS:
+ * * FUENTES CONSULTADAS:
  * - Consultas menores a IA (ChatGPT) para resolución de errores específicos
- *   en temas de Rigidbody2D y detección de colisiones con OnTriggerEnter2D.
+ * en temas de Rigidbody2D y detección de colisiones con OnTriggerEnter2D.
  * - No se usaron fragmentos directos de código externo.
- * 
- * FECHA: 05/10
+ * * FECHA: 05/10
  *******************************************************/
 
 using UnityEngine;
 
-// Requiere que el objeto tenga Rigidbody2D y Collider2D para funcionar correctamente.
-[RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
+// Requiere que el objeto tenga Rigidbody2D, Collider2D y ahora SpriteRenderer para el color.
+[RequireComponent(typeof(Rigidbody2D), typeof(Collider2D), typeof(SpriteRenderer))]
 public class PlayerBullet : MonoBehaviour
 {
     [Header("Config")]
@@ -27,12 +24,35 @@ public class PlayerBullet : MonoBehaviour
     public int damage = 1;      // Daño que la bala inflige a los enemigos.
 
     private Rigidbody2D rb;     // Referencia al Rigidbody2D de la bala.
+    private SpriteRenderer spriteRenderer; // 💡 Referencia añadida para poder cambiar el color.
+    
+    // 💡 Variable para controlar cuántos enemigos puede atravesar.
+    private int perforacionesRestantes = 0;
 
     private void Awake()
     {
         // Se obtiene el componente Rigidbody2D y se desactiva la gravedad para evitar que caiga.
         rb = GetComponent<Rigidbody2D>();
+        
+        // 💡 Obtenemos el SpriteRenderer para manipular el color
+        spriteRenderer = GetComponent<SpriteRenderer>();
+
         if (rb != null) rb.gravityScale = 0f;
+    }
+
+    // 💡 Método para configurar la perforación desde el PlayerShooter.
+    public void SetPerforaciones(int cantidad)
+    {
+        perforacionesRestantes = cantidad;
+    }
+
+    // 💡 NUEVO: Método para cambiar el color de la bala (Feedback visual del Power-Up)
+    public void SetColor(Color nuevoColor)
+    {
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.color = nuevoColor;
+        }
     }
 
     /// <summary>
@@ -75,13 +95,23 @@ public class PlayerBullet : MonoBehaviour
         BaseEnemy enemy = other.GetComponentInParent<BaseEnemy>();
         if (enemy != null)
         {
-            // Si encuentra un enemigo, aplica daño y destruye la bala.
+            // Si encuentra un enemigo, aplica daño.
             enemy.TakeDamage(damage);
-            Destroy(gameObject);
+
+            // 💡 LÓGICA MODIFICADA: Si tiene perforaciones, no se destruye, solo resta un contador.
+            if (perforacionesRestantes > 0)
+            {
+                perforacionesRestantes--; // Atraviesa y sigue su camino.
+            }
+            else
+            {
+                Destroy(gameObject); // Comportamiento normal: se destruye al impactar.
+            }
             return;
         }
 
         // Si la bala impacta con una pared (por layer o tag), se destruye.
+        // NOTA: Las paredes siempre destruyen la bala, independientemente de la perforación.
         if (other.gameObject.layer == LayerMask.NameToLayer("Walls") || other.CompareTag("Wall"))
         {
             Destroy(gameObject);
