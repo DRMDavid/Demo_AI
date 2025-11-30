@@ -135,6 +135,59 @@ MonoBehaviour:
   m_Area: 0
   m_IgnoreFromBuild: 0
   m_AffectedAgents: ffffffff
+--- !u!1 &6559139
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6559140}
+  - component: {fileID: 6559141}
+  m_Layer: 7
+  m_Name: BossEffects
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6559140
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6559139}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1001766441}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6559141
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6559139}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f08e3b1b542f1c409e8d01f8fcd91c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visualTransform: {fileID: 1001766441}
+  visualSprite: {fileID: 1001766440}
+  ghostPrefab: {fileID: 4567975876166984749, guid: 94e861198ee18fd42be62b6a24c6fa0c, type: 3}
+  meleeImpactPrefab: {fileID: 2349299549084925670, guid: df77a5956da301643a7d4df6bafe253e, type: 3}
+  shootFlashPrefab: {fileID: 5031360669643324387, guid: 0d458111a8f72db4a83fb531fa29e551, type: 3}
+  shockwavePrefab: {fileID: 4351822693082364762, guid: 2a92a7be8204f4946ac758d2fae220b0, type: 3}
+  chargePrefab: {fileID: 2825834437229596222, guid: 81a2a9c3be4fc0644be392ec9d06e9e7, type: 3}
+  burstPrefab: {fileID: 4077306259081591826, guid: 39fcb1059f25a6141994eca113f8ce00, type: 3}
+  ghostInterval: 0.06
 --- !u!1 &31767096
 GameObject:
   m_ObjectHideFlags: 0
@@ -2818,6 +2871,16 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &1001766440 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 7138789598012678438, guid: 3e26c22c623853846ac1ac61ef45b276, type: 3}
+  m_PrefabInstance: {fileID: 4669349597300072190}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1001766441 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1438209167884730352, guid: 3e26c22c623853846ac1ac61ef45b276, type: 3}
+  m_PrefabInstance: {fileID: 4669349597300072190}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1015110835
 GameObject:
   m_ObjectHideFlags: 0
@@ -3692,9 +3755,20 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4384944430668242670, guid: 3e26c22c623853846ac1ac61ef45b276, type: 3}
+      propertyPath: vfx
+      value: 
+      objectReference: {fileID: 6559141}
+    - target: {fileID: 4384944430668242670, guid: 3e26c22c623853846ac1ac61ef45b276, type: 3}
+      propertyPath: rangedRange
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 1438209167884730352, guid: 3e26c22c623853846ac1ac61ef45b276, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6559140}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3e26c22c623853846ac1ac61ef45b276, type: 3}
 --- !u!1660057539 &9223372036854775807

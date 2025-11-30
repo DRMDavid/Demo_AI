@@ -8,6 +8,7 @@ TagManager:
   - Enemy
   - Caja
   - Bullet
+  - VFX
   layers:
   - Default
   - TransparentFX
@@ -20,7 +21,7 @@ TagManager:
   - Wall
   - Caja
   - PlayerBullet
-  - 
+  - VFX
   - 
   - 
   - 
