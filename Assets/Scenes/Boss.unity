@@ -1941,12 +1941,24 @@ PrefabInstance:
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 2685679409140820855, guid: d1080c2782ae3e14cbc6c0f3b3c4c104, type: 3}
+      propertyPath: ghostPrefab
+      value: 
+      objectReference: {fileID: 7744564061110097798, guid: 0eb3ee215aa8d2643bec679d5685ae15, type: 3}
+    - target: {fileID: 2685679409140820855, guid: d1080c2782ae3e14cbc6c0f3b3c4c104, type: 3}
       propertyPath: configPlayer
       value: 
       objectReference: {fileID: 11400000, guid: 8b3ebba5b804173449adc71ecb213337, type: 2}
     - target: {fileID: 2685679409140820855, guid: d1080c2782ae3e14cbc6c0f3b3c4c104, type: 3}
       propertyPath: velocidadDash
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2685679409140820855, guid: d1080c2782ae3e14cbc6c0f3b3c4c104, type: 3}
+      propertyPath: ghostBurstCount
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2685679409140820855, guid: d1080c2782ae3e14cbc6c0f3b3c4c104, type: 3}
+      propertyPath: tiempoEntreGhost
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2685679409140820855, guid: d1080c2782ae3e14cbc6c0f3b3c4c104, type: 3}
       propertyPath: velocidadMovimiento
@@ -1958,7 +1970,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6272720520837006056, guid: d1080c2782ae3e14cbc6c0f3b3c4c104, type: 3}
       propertyPath: m_SortingLayer
-      value: 3
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6272720520837006056, guid: d1080c2782ae3e14cbc6c0f3b3c4c104, type: 3}
       propertyPath: m_SortingLayerID
@@ -1966,7 +1978,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7140232486456583511, guid: d1080c2782ae3e14cbc6c0f3b3c4c104, type: 3}
       propertyPath: m_SortingLayer
-      value: 3
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 7140232486456583511, guid: d1080c2782ae3e14cbc6c0f3b3c4c104, type: 3}
       propertyPath: m_SortingLayerID
@@ -2019,6 +2031,8 @@ MonoBehaviour:
   proyectilDamage: 2
   proyectilSpeed: 12
   fireRate: 0.25
+  colorNormal: {r: 1, g: 1, b: 1, a: 1}
+  colorPerforante: {r: 1, g: 0, b: 0, a: 1}
   armaSprite: {fileID: 1720014108}
   shootSound: {fileID: 8300000, guid: 91ea8c8724b68bb4ca78113ce4f9d7db, type: 3}
 --- !u!82 &774775240
