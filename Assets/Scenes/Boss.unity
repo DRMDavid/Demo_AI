@@ -289,6 +289,11 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!212 &46019958 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 6109690938864382327, guid: d1080c2782ae3e14cbc6c0f3b3c4c104, type: 3}
+  m_PrefabInstance: {fileID: 774775223}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &49435971
 GameObject:
   m_ObjectHideFlags: 0
@@ -2006,6 +2011,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 1141644968989743989, guid: d1080c2782ae3e14cbc6c0f3b3c4c104, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1354413550569683085, guid: d1080c2782ae3e14cbc6c0f3b3c4c104, type: 3}
       propertyPath: m_LocalPosition.x
       value: 4.06
@@ -2062,6 +2071,10 @@ PrefabInstance:
       propertyPath: velocidadDash
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 2685679409140820855, guid: d1080c2782ae3e14cbc6c0f3b3c4c104, type: 3}
+      propertyPath: weaponRenderer
+      value: 
+      objectReference: {fileID: 46019958}
     - target: {fileID: 2685679409140820855, guid: d1080c2782ae3e14cbc6c0f3b3c4c104, type: 3}
       propertyPath: ghostBurstCount
       value: 10
@@ -3888,7 +3901,7 @@ PrefabInstance:
     - target: {fileID: 4384944430668242670, guid: 3e26c22c623853846ac1ac61ef45b276, type: 3}
       propertyPath: damagePopupPrefab
       value: 
-      objectReference: {fileID: 7354404052980991140, guid: 78078961e4950ef418f17ed74b869e37, type: 3}
+      objectReference: {fileID: 6506314592543063184, guid: c46d4f99c51facb4c808fe98b51a6dff, type: 3}
     - target: {fileID: 4384944430668242670, guid: 3e26c22c623853846ac1ac61ef45b276, type: 3}
       propertyPath: bulletPrefabs.Array.size
       value: 4

@@ -1,15 +1,15 @@
 /*******************************************************
  * NOMBRE DEL ARCHIVO: DamagePopup.cs
- * AUTOR: David Sanchez (Implementación)
- * * DESCRIPCIÓN: 
- * Controla la animación de los números de daño (Floating Text).
- * Se asegura de renderizarse por encima de los sprites en juegos 2D.
- * * REFERENCIA: 
- * - Floating Damage Text (CodeMonkey): https://www.youtube.com/watch?v=iD1_JczQcFY
+ * AUTOR: Gael, Steve y David
+ * DESCRIPCIÓN:
+ * Controla el comportamiento visual del texto de daño flotante.
+ * - Movimiento ascendente con gravedad simulada.
+ * - Desvanecimiento gradual (Fade out).
+ * - Ajuste de tamaño y color según cantidad de daño.
  *******************************************************/
 
 using UnityEngine;
-using TMPro; // Necesario para TextMeshPro
+using TMPro; // Requerido para TextMeshPro
 
 public class DamagePopup : MonoBehaviour
 {
@@ -23,48 +23,41 @@ public class DamagePopup : MonoBehaviour
     private void Awake()
     {
         textMesh = GetComponent<TextMeshPro>();
-        
-        // CORRECCIÓN CRÍTICA PARA 2D:
-        // Fuerza al texto a dibujarse en la capa 2000 para que nada lo tape.
-        MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
-        if (meshRenderer != null)
-        {
-            meshRenderer.sortingOrder = 2000; 
-        }
     }
 
     public void Setup(int damageAmount)
     {
+        // Asigna el texto
         textMesh.text = damageAmount.ToString();
 
-        // Estilo Crítico vs Normal
+        // Lógica visual: Si el daño es alto (critico), cambia estilo
         if (damageAmount > 10) 
         {
             textMesh.fontSize = 8;
-            textMesh.color = new Color(1f, 0.2f, 0.2f); // Rojo Intenso
+            textMesh.color = Color.red;
         }
         else
         {
             textMesh.fontSize = 5;
-            textMesh.color = new Color(1f, 0.8f, 0f); // Amarillo
+            textMesh.color = new Color(1f, 0.8f, 0f); // Naranja/Amarillo
         }
 
         textColor = textMesh.color;
         disappearTimer = DISAPPEAR_TIMER_MAX;
 
-        // Movimiento inicial aleatorio hacia los lados y arriba
-        moveVector = new Vector3(Random.Range(-1f, 1f), 3f) * 8f; 
+        // Vector de movimiento inicial: Sube rápido y se mueve un poco a los lados
+        moveVector = new Vector3(Random.Range(-1f, 1f), 5f) * 5f; 
     }
 
     private void Update()
     {
-        // Mover hacia arriba
+        // Mover
         transform.position += moveVector * Time.deltaTime;
         
-        // Simular gravedad (el texto sube rápido y luego frena)
+        // Simular gravedad (el texto frena su subida)
         moveVector -= moveVector * 8f * Time.deltaTime;
 
-        // Desvanecer (Fade Out)
+        // Desvanecer
         disappearTimer -= Time.deltaTime;
         if (disappearTimer < 0)
         {
