@@ -3,6 +3,7 @@
  * AUTOR ORIGINAL: Gianny Dantas (Curso Udemy)
  * MODIFICADO Y AMPLIADO POR: Gael, david, Steve
  * INTEGRACIÓN ADICIONAL: Efecto Hollow Knight (afterimages + stretch + multicolor)
+ * * MODIFICACIÓN ACTUAL: Soporte para modificadores de velocidad (Hielo/Veneno)
  *******************************************************/
 
 using System.Collections;
@@ -29,6 +30,9 @@ public class PlayerMovimiento : MonoBehaviour
     [SerializeField] private float ghostBurstInterval = 0.03f;
     [SerializeField] private float stretchScaleX = 1.4f;
     [SerializeField] private float stretchScaleY = 0.75f;
+
+    // --- NUEVA VARIABLE PARA ESTADOS ---
+    private float multiplicadorVelocidad = 1.0f; 
 
     private Rigidbody2D rb2D;
     private PlayerAcciones acciones;
@@ -60,7 +64,7 @@ public class PlayerMovimiento : MonoBehaviour
     {
         CapturarInput();
         RotarPlayer();
-        MoverPlayer();
+        // MoverPlayer(); // Se mueve al FixedUpdate para físicas consistentes
 
         if (puedeRegenerar)
             RegenerarEnergia();
@@ -73,7 +77,16 @@ public class PlayerMovimiento : MonoBehaviour
 
     private void MoverPlayer()
     {
-        rb2D.MovePosition(rb2D.position + direccionMovimiento * (velocidadActual * Time.fixedDeltaTime));
+        // APLICAMOS EL MULTIPLICADOR (Lógica nueva integrada)
+        float velocidadFinal = velocidadActual * multiplicadorVelocidad;
+        rb2D.MovePosition(rb2D.position + direccionMovimiento * (velocidadFinal * Time.fixedDeltaTime));
+    }
+
+    // --- NUEVO MÉTODO PARA ACCEDER DESDE FUERA (PlayerStatusManager) ---
+    public void SetMultiplicadorVelocidad(float valor)
+    {
+        multiplicadorVelocidad = valor;
+        Debug.Log($"[PlayerMovimiento] Multiplicador cambiado a: {valor}");
     }
 
     private void Dash()

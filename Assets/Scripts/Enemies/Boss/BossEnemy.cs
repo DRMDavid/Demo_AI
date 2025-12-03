@@ -20,35 +20,39 @@ public class BossEnemy : BaseEnemy
     // ================================================================
     [Header("CONFIGURACIÓN DE NAVMESH")]
     private NavMeshAgent _navAgent;
-    public float agentSpeed = 3.5f;
-    public float agentStoppingDistance = 1.0f;
+    [SerializeField] public float agentSpeed = 3.5f;
+    [SerializeField] public float agentStoppingDistance = 1.0f;
 
     // ================================================================
     // CONFIGURACIÓN DE FSM
     // ================================================================
     [Header("RANGOS DE FSM")]
-    public float meleeRange = 3.0f;
-    public float rangedRange = 8.0f;
+    [SerializeField] public float meleeRange = 3.0f;
+    [SerializeField] public float rangedRange = 8.0f;
     [Range(0f, 1f)]
-    public float ultimateHPThreshold = 0.3f;
+    [SerializeField] public float ultimateHPThreshold = 0.3f;
 
     // ================================================================
     // CONFIGURACIÓN DE ATAQUES
     // ================================================================
     [Header("CONFIGURACIÓN DE ATAQUE")]
-    public float attackCooldown = 1.5f;
-    public float dashForce = 15f;
+    [SerializeField] public float attackCooldown = 1.5f;
+    [SerializeField] public float dashForce = 15f;
 
     // ================================================================
     // PROYECTILES Y DAÑO
     // ================================================================
     [Header("PROYECTILES Y DAÑO")]
-    public GameObject bulletPrefab;
-    public Transform firePoint;
-    public float bulletSpeed = 10f;
-    public int rangedBurstCount = 5;
-    public float aoeRadius = 4.0f;
-    public int aoeDamageMultiplier = 4;
+    [Tooltip("Pon aquí tus prefabs de bala (Normal, Veneno, Hielo, Explosiva)")]
+    [SerializeField] public GameObject[] bulletPrefabs; // ARRAY NUEVO
+    [SerializeField] public Transform firePoint;
+    [SerializeField] public float bulletSpeed = 10f;
+    [SerializeField] public int rangedBurstCount = 5;
+    [SerializeField] public float aoeRadius = 4.0f;
+    [SerializeField] public int aoeDamageMultiplier = 4;
+
+    [Header("ATAQUE ESPIRAL")]
+    [SerializeField] private int spiralShoots = 24; // Cantidad de balas en espiral
 
     // ================================================================
     // VARIABLES INTERNAS
@@ -60,6 +64,10 @@ public class BossEnemy : BaseEnemy
     private Rigidbody2D _rb;
     private int _playerLayerMask;
     private const float FIXED_Z_POSITION = 0f;
+    
+    // Control de Furia
+    private bool _isEnraged = false;
+    private SpriteRenderer _bossSprite;
 
     // ================================================================
     // MÉTODOS UNITY
@@ -73,6 +81,7 @@ public class BossEnemy : BaseEnemy
 
         _rb = GetComponent<Rigidbody2D>();
         _navAgent = GetComponent<NavMeshAgent>();
+        _bossSprite = GetComponentInChildren<SpriteRenderer>();
 
         if (_navAgent == null) { Debug.LogError("NavMeshAgent no encontrado."); return; }
 
@@ -97,8 +106,30 @@ public class BossEnemy : BaseEnemy
         if (_navAgent != null && _playerTarget != null && _currentBossState == EBossState.IdleMove)
         {
             _navAgent.isStopped = false;
-            _navAgent.speed = agentSpeed;
+            _navAgent.speed = agentSpeed; // Usar variable modificada por furia
             _navAgent.SetDestination(_playerTarget.position);
+        }
+
+        // Chequear fase de furia constantemente
+        CheckEnrage();
+    }
+
+    // Lógica nueva de Furia
+    void CheckEnrage()
+    {
+        if (!_isEnraged && currentHP < maxHP * 0.4f) // Al 40% de vida
+        {
+            _isEnraged = true;
+            Debug.Log(">>> BOSS ENRAGED: ¡MODO FURIA ACTIVADO! <<<");
+
+            // Buffs
+            agentSpeed *= 1.5f;
+            attackCooldown *= 0.6f;
+            bulletSpeed *= 1.2f;
+
+            // Visual
+            if (_bossSprite) _bossSprite.color = Color.red; // Se pone rojo
+            if (vfx) vfx.TriggerShake(0.5f, 1.0f);
         }
     }
 
@@ -155,7 +186,7 @@ public class BossEnemy : BaseEnemy
         if (_playerTarget == null) return EBossState.IdleMove;
         float distance = Vector3.Distance(transform.position, _playerTarget.position);
 
-        if (currentHP <= maxHP * ultimateHPThreshold) return EBossState.Ultimate;
+        if (currentHP <= maxHP * ultimateHPThreshold && !_isEnraged) return EBossState.Ultimate; // Solo una vez o controlado
         if (distance <= meleeRange) return EBossState.Melee;
         if (distance <= rangedRange) return EBossState.Ranged;
 
@@ -194,8 +225,18 @@ public class BossEnemy : BaseEnemy
         }
         else
         {
-            attackDuration = GetRangedAttackDuration(attackType);
-            StartCoroutine(PerformRangedAttackSequence(attackType));
+            // Si está furioso, chance de ataque espiral sorpresa
+            if (_isEnraged && Random.value > 0.6f)
+            {
+                Debug.Log("BOSS: Ataque Espiral Furia");
+                attackDuration = 2.0f;
+                yield return StartCoroutine(FireSpiralRoutine());
+            }
+            else
+            {
+                attackDuration = GetRangedAttackDuration(attackType);
+                StartCoroutine(PerformRangedAttackSequence(attackType));
+            }
         }
 
         yield return new WaitForSeconds(attackDuration);
@@ -318,6 +359,25 @@ public class BossEnemy : BaseEnemy
     }
 
     // ================================================================
+    // NUEVO: ATAQUE ESPIRAL (Bullet Hell)
+    // ================================================================
+    IEnumerator FireSpiralRoutine()
+    {
+        float angleStep = 360f / spiralShoots;
+        float currentAngle = 0f;
+
+        for (int i = 0; i < spiralShoots; i++)
+        {
+            Vector2 dir = RotateVector2(Vector2.right, currentAngle);
+            FireBullet(dir, bulletSpeed);
+            currentAngle += 20f; // Rotación para efecto espiral
+            
+            // Si está furioso dispara más rápido
+            yield return new WaitForSeconds(_isEnraged ? 0.02f : 0.05f);
+        }
+    }
+
+    // ================================================================
     // ATAQUE ULTIMATE (AQUÍ ESTÁ EL ARREGLO)
     // ================================================================
     IEnumerator ExecuteUltimateAttack()
@@ -397,12 +457,29 @@ public class BossEnemy : BaseEnemy
         }
     }
 
+    // Modificado para elegir bala aleatoria del array
     void FireBullet(Vector2 direction, float speed)
     {
-        if (bulletPrefab == null || firePoint == null) return;
-        GameObject bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
-        Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
-        if (rb != null) rb.linearVelocity = direction * speed;
+        // CORRECCIÓN: Verificamos directamente el array 'bulletPrefabs'
+        if (bulletPrefabs == null || bulletPrefabs.Length == 0 || firePoint == null) return;
+
+        // Selección aleatoria de bala del array
+        GameObject prefabToUse = bulletPrefabs[Random.Range(0, bulletPrefabs.Length)];
+        
+        GameObject bullet = Instantiate(prefabToUse, firePoint.position, Quaternion.identity);
+        
+        // Configurar bala
+        Bullet bScript = bullet.GetComponent<Bullet>();
+        if (bScript != null)
+        {
+            bScript.Init(direction, speed);
+        }
+        else
+        {
+            // Soporte por si usas una bala simple sin el script Bullet nuevo
+            Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
+            if (rb != null) rb.linearVelocity = direction * speed;
+        }
     }
 
     IEnumerator FireTripleShot(Vector2 targetDir)

@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 803646879585164979}
   - component: {fileID: 5809506561442589507}
-  m_Layer: 10
+  m_Layer: 6
   m_Name: Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -77,7 +77,7 @@ SpriteRenderer:
   m_SortingLayer: 5
   m_SortingOrder: 0
   m_Sprite: {fileID: -8839328, guid: 44ced3bb28be3974dac2f60f6cdbe78f, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.43529412}
+  m_Color: {r: 0.1315367, g: 0.91194963, b: 0, a: 0.43137255}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -99,10 +99,10 @@ GameObject:
   - component: {fileID: 63590818158628066}
   - component: {fileID: 146396182421373975}
   - component: {fileID: 7926694136675639855}
-  - component: {fileID: 6591015935776696983}
-  m_Layer: 10
-  m_Name: PlayerBullet
-  m_TagString: Bullet
+  - component: {fileID: 8752991740244009683}
+  m_Layer: 6
+  m_Name: Bullet_Veneno
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -164,9 +164,9 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 1728766009
-  m_SortingLayer: 5
-  m_SortingOrder: 1
+  m_SortingLayerID: -556145885
+  m_SortingLayer: 6
+  m_SortingOrder: 25
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
   m_Color: {r: 0.21960786, g: 0.21960786, b: 0.21960786, a: 0}
   m_FlipX: 0
@@ -186,7 +186,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7988684601154845558}
-  m_BodyType: 1
+  m_BodyType: 0
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -241,7 +241,7 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.31
---- !u!114 &6591015935776696983
+--- !u!114 &8752991740244009683
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -250,8 +250,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 7988684601154845558}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 92d715e17a534b6f8b26cf393498b8c7, type: 3}
+  m_Script: {fileID: 11500000, guid: 24121403e869e7f42976290f46dc3778, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lifeTime: 2
-  damage: 1
+  lifeTime: 3
+  damage: 2
+  tipo: 1
+  radioExplosion: 2.5
+  vfxExplosion: {fileID: 0}
+  "da\xF1oVeneno": 5
+  duracionVeneno: 3
+  factorHielo: 0.5
+  duracionHielo: 2
