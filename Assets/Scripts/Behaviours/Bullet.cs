@@ -1,9 +1,19 @@
+/*******************************************************
+ * NOMBRE DEL ARCHIVO: Bullet.cs
+ * AUTORES: Hannin Abarca, Gael Jimenez, David Sanchez
+ * * DESCRIPCIÓN:
+ * Controla la lógica de los proyectiles enemigos.
+ * Soporta múltiples tipos de munición: Normal, Veneno, Hielo y Explosiva.
+ * * REFERENCIAS:
+ * - Sistema de Proyectiles Básico: https://www.udemy.com/course/aprende-a-crear-un-videojuego-de-accion-2d-con-unity/
+ *******************************************************/
+
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
 public class Bullet : MonoBehaviour
 {
-    // Tipos de balas disponibles para el Boss
+    // Enum para definir el comportamiento en el Inspector
     public enum TipoBala { Normal, Veneno, Hielo, Explosiva }
 
     [Header("Configuración Base")]
@@ -11,17 +21,17 @@ public class Bullet : MonoBehaviour
     public int damage = 1;
 
     [Header("Configuración Especial")]
-    [Tooltip("Elige el comportamiento de esta bala.")]
+    [Tooltip("Define qué efecto aplicará esta bala.")]
     [SerializeField] public TipoBala tipo = TipoBala.Normal;
 
     [Header("Explosivos")]
     [SerializeField] private float radioExplosion = 2.5f;
-    [SerializeField] private GameObject vfxExplosion; // Arrastra tu prefab de explosión aquí
+    [SerializeField] private GameObject vfxExplosion; 
 
     [Header("Estados Alterados")]
     [SerializeField] private int dañoVeneno = 5;
     [SerializeField] private float duracionVeneno = 3f;
-    [SerializeField] private float factorHielo = 0.5f; // 50% velocidad
+    [SerializeField] private float factorHielo = 0.5f; // 0.5 = 50% lentitud
     [SerializeField] private float duracionHielo = 2f;
 
     private Rigidbody2D rb;
@@ -30,17 +40,19 @@ public class Bullet : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        sr = GetComponent<SpriteRenderer>(); // Para cambiar color si es necesario
-        if (rb != null) rb.gravityScale = 0f;
+        sr = GetComponent<SpriteRenderer>();
+        if (rb != null) rb.gravityScale = 0f; // Asegurar que no caiga
     }
 
-    // Llamar inmediatamente después de Instantiate
+    /// <summary>
+    /// Inicializa la bala con dirección y velocidad. Cambia el color según el tipo.
+    /// </summary>
     public void Init(Vector2 direction, float speed)
     {
         if (rb == null) rb = GetComponent<Rigidbody2D>();
         if (rb != null) rb.linearVelocity = direction.normalized * speed;
         
-        // Opcional: Cambiar color según tipo para debug visual rápido
+        // Feedback visual rápido para debug
         if (sr != null)
         {
             switch (tipo)
@@ -51,38 +63,43 @@ public class Bullet : MonoBehaviour
             }
         }
 
-        Destroy(gameObject, lifeTime);
+        Destroy(gameObject, lifeTime); // Auto-destrucción
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        // Colisión con Jugador
         if (collision.CompareTag("Player"))
         {
-            // Lógica para aplicar efectos al jugador
             AplicarEfectos(collision.gameObject);
 
-            // Si es explosiva, explota; si no, se destruye normal
+            // Explosivas explotan, el resto se destruye
             if (tipo == TipoBala.Explosiva) Explotar();
             else Destroy(gameObject);
         }
-        else if (collision.CompareTag("Wall") || collision.CompareTag("Suelo"))
+        // Colisión con Muros (Tag corregido a "Wall")
+        else if (collision.CompareTag("Wall"))
         {
             if (tipo == TipoBala.Explosiva) Explotar();
             Destroy(gameObject);
         }
     }
 
+    /// <summary>
+    /// Aplica daño y efectos de estado al objetivo.
+    /// </summary>
     private void AplicarEfectos(GameObject target)
     {
         PlayerSalud ps = target.GetComponent<PlayerSalud>();
         PlayerStatusManager status = target.GetComponent<PlayerStatusManager>();
 
+        // Daño base inmediato
         if (ps != null)
         {
-            // Daño base
             ps.RecibirDamage(damage);
         }
 
+        // Efectos secundarios
         if (status != null)
         {
             switch (tipo)
@@ -99,15 +116,16 @@ public class Bullet : MonoBehaviour
 
     private void Explotar()
     {
-        Debug.Log("BOOM! Bala explosiva.");
+        // Instanciar efecto visual
         if (vfxExplosion != null) Instantiate(vfxExplosion, transform.position, Quaternion.identity);
 
+        // Daño en área
         Collider2D[] afectados = Physics2D.OverlapCircleAll(transform.position, radioExplosion);
         foreach (var col in afectados)
         {
             if (col.CompareTag("Player"))
             {
-                // Daño extra por explosión
+                // Doble daño por explosión
                 col.GetComponent<PlayerSalud>().RecibirDamage(damage * 2);
             }
         }
